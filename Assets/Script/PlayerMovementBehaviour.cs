@@ -15,8 +15,8 @@ public class PlayerMovementBehaviour : MonoBehaviour
     void Update()
     {      
         float moveX = Input.GetAxisRaw("Horizontal"); 
-        float moveZ = Input.GetAxisRaw("Vertical");   
-
+        float moveZ = Input.GetAxisRaw("Vertical"); 
+      
         moveInput = new Vector3(moveX, 0f, moveZ).normalized;
     }
 

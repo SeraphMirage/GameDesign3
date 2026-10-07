@@ -1,16 +1,14 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class ButtonBehaviour : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public Vector3 pressOffest = new Vector3(0, 0, 0);
+    public UnityEvent onClick;
 
-    // Update is called once per frame
-    void Update()
+    public void PushDown()
     {
-        
+        transform.position += pressOffest;
+        onClick.Invoke();
     }
 }
