@@ -4,11 +4,10 @@ public class PlayerMovementBehaviour : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public float rotationSpeed = 10f;
-
-    public Transform cameraTransform;
-
     private Rigidbody rb;
     private Vector3 moveInput;
+
+    public Transform cameraTransform;
 
     void Start()
     {
@@ -53,7 +52,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
         if (moveDirection.sqrMagnitude > 0.01f)
         {
             Quaternion targetRotation =
-                Quaternion.LookRotation(moveDirection);
+            Quaternion.LookRotation(moveDirection);
 
             Quaternion newRotation = Quaternion.Slerp(
                 rb.rotation,

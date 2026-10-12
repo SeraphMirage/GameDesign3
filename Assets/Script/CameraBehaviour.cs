@@ -37,10 +37,8 @@ public class CameraBehaviour : MonoBehaviour
         // Camera orbit rotation
         Quaternion rotation = Quaternion.Euler(mouseY, mouseX, 0f);
 
-        // Desired camera position
         Vector3 desiredPosition = Player.position + rotation * offset;
 
-        // Direction from player to camera
         Vector3 direction = desiredPosition - Player.position;
         float distance = direction.magnitude;
         direction.Normalize();
@@ -63,7 +61,6 @@ public class CameraBehaviour : MonoBehaviour
             );
         }
 
-        // Move in quickly, move out smoothly
         if (targetDistance < currentDistance)
         {
             currentDistance = targetDistance;
