@@ -4,6 +4,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public float rotationSpeed = 10f;
+
     private Rigidbody rb;
     private Vector3 moveInput;
 
@@ -21,8 +22,8 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     void Update()
     {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
+        float moveX = Input.GetAxisRaw("Horizontal");
+        float moveZ = Input.GetAxisRaw("Vertical");
 
         moveInput = new Vector3(moveX, 0f, moveZ).normalized;
     }
@@ -43,16 +44,17 @@ public class PlayerMovementBehaviour : MonoBehaviour
         Vector3 moveDirection =
             (forward * moveInput.z + right * moveInput.x).normalized;
 
-        rb.linearVelocity = new Vector3(
-            moveDirection.x * moveSpeed,
-            rb.linearVelocity.y,
-            moveDirection.z * moveSpeed
-        );
+        Vector3 velocity = rb.linearVelocity;
 
-        if (moveDirection.sqrMagnitude > 0.01f)
+        if (moveInput.sqrMagnitude > 0.01f)
         {
+            velocity.x = moveDirection.x * moveSpeed;
+            velocity.z = moveDirection.z * moveSpeed;
+
+            rb.linearVelocity = velocity;
+
             Quaternion targetRotation =
-            Quaternion.LookRotation(moveDirection);
+                Quaternion.LookRotation(moveDirection);
 
             Quaternion newRotation = Quaternion.Slerp(
                 rb.rotation,
@@ -61,6 +63,14 @@ public class PlayerMovementBehaviour : MonoBehaviour
             );
 
             rb.MoveRotation(newRotation);
+        }
+        else
+        {
+            // Instantly stop horizontal movement
+            velocity.x = 0f;
+            velocity.z = 0f;
+
+            rb.linearVelocity = velocity;
         }
     }
 }
