@@ -3,9 +3,8 @@ using UnityEngine.Events;
 
 public class ButtonBehaviour : MonoBehaviour
 {
-    [SerializeField] private Material redMaterial;
-
-    [SerializeField] private Material greenMaterial;
+    public Material redMaterial;
+    public Material greenMaterial;
 
     private Renderer objectRenderer;
 

@@ -2,15 +2,32 @@ using UnityEngine;
 
 public class SpawnBehaviour : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public GameObject prefabToSpawn; 
+    [SerializeField] private Transform spawnLocation;   
+    [SerializeField] private bool triggerOnlyOnce = true; 
 
-    // Update is called once per frame
-    void Update()
+    private bool hasTriggered = false;
+    
+    private void OnTriggerEnter(Collider other)
     {
         
+        if (other.CompareTag("Player"))
+        {
+            if (triggerOnlyOnce && hasTriggered) return;
+
+            SpawnObject();
+            hasTriggered = true;
+        }
+    }
+    private void SpawnObject()
+    {
+        if (prefabToSpawn != null)
+        {
+            // If a custom spawn location is set, use it. Otherwise, spawn at this trigger's position.
+            Vector3 spawnPos = spawnLocation != null ? spawnLocation.position : transform.position;
+            Quaternion spawnRot = spawnLocation != null ? spawnLocation.rotation : Quaternion.identity;
+
+            Instantiate(prefabToSpawn, spawnPos, spawnRot);
+        }
     }
 }
