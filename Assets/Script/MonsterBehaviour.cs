@@ -4,21 +4,36 @@ public class MonsterBehaviour : MonoBehaviour
 {
     public Transform Player;
 
-    public float chaseSpeed;
-    public float aggroDistance;
+    public float chaseSpeed = 3f;
+    public float aggroDistance = 10f;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject != null)
+        {
+            Player = playerObject.transform;
+        }
+        else
+        {
+            Debug.LogError("No GameObject tagged 'Player' was found!", this);
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
+        // Prevent errors if the player hasn't been found
+        if (Player == null) return;
+
         float distance = Vector3.Distance(transform.position, Player.position);
+
         if (distance > aggroDistance) return;
 
-        transform.position = Vector3.MoveTowards(transform.position, Player.position, chaseSpeed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            Player.position,
+            chaseSpeed * Time.deltaTime
+        );
     }
 }

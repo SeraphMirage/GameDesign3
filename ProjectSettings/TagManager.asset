@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Button1
   - Monster
+  - Spawnable
   layers:
   - Default
   - TransparentFX
