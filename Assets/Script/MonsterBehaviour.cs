@@ -6,9 +6,14 @@ public class MonsterBehaviour : MonoBehaviour
 
     public float chaseSpeed = 3f;
     public float aggroDistance = 10f;
+    public float spawnGracePeriod = 1f;
+
+    private float spawnTime;
 
     void Start()
     {
+        spawnTime = Time.time;
+
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
 
         if (playerObject != null)
@@ -17,23 +22,32 @@ public class MonsterBehaviour : MonoBehaviour
         }
         else
         {
-            Debug.LogError("No GameObject tagged 'Player' was found!", this);
+            Debug.LogError("Monster couldn't find the Player!", this);
         }
     }
 
     void Update()
     {
-        // Prevent errors if the player hasn't been found
         if (Player == null) return;
 
-        float distance = Vector3.Distance(transform.position, Player.position);
-
-        if (distance > aggroDistance) return;
-
+        // Chase the Player on spawn
         transform.position = Vector3.MoveTowards(
             transform.position,
             Player.position,
             chaseSpeed * Time.deltaTime
         );
+
+        if (Time.time - spawnTime < spawnGracePeriod) return;
+
+        float distance = Vector3.Distance(
+            transform.position,
+            Player.position
+        );
+
+        // Disappear if the Player gets too far away.
+        if (distance > aggroDistance)
+        {
+            Destroy(gameObject);
+        }
     }
 }

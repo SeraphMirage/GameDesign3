@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class SpawnBehaviour : MonoBehaviour
 {
-    public GameObject prefabToSpawn; 
-    [SerializeField] private Transform spawnLocation;   
-    [SerializeField] private bool triggerOnlyOnce = true; 
+    public GameObject prefabToSpawn;
+    [SerializeField] private Transform spawnLocation;
+    [SerializeField] private bool triggerOnlyOnce = true;
 
     private bool hasTriggered = false;
-    
+
     private void OnTriggerEnter(Collider other)
     {
-        
+
         if (other.CompareTag("Player"))
         {
             if (triggerOnlyOnce && hasTriggered) return;
