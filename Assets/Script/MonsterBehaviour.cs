@@ -50,4 +50,5 @@ public class MonsterBehaviour : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
 }

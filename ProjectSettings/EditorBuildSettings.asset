@@ -4,7 +4,13 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/LabDeck2.unity
+    guid: 229cd7ed5c4ee354d9d155dcce774096
+  - enabled: 1
+    path: Assets/Scenes/DeathScreen.unity
+    guid: d0f4f772715886349904cd256a71c6d5
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 289c1b55c9541489481df5cc06664110, type: 3}
   m_UseUCBPForAssetBundles: 0
