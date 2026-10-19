@@ -20,10 +20,6 @@ public class ButtonBehaviour : MonoBehaviour
                 objectRenderer.material = redMaterial;
             }
         }
-        else
-        {
-            Debug.LogError("No Renderer found on " + gameObject.name);
-        }
     }
 
     private void OnMouseDown()
