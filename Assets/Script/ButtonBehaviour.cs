@@ -6,34 +6,46 @@ public class ButtonBehaviour : MonoBehaviour
     public Material redMaterial;
     public Material greenMaterial;
 
+    public FlickerBehaviour[] powerZones;
+    public GameObject[] objectsToActivate;
+
     private Renderer objectRenderer;
 
     private void Start()
     {
         objectRenderer = GetComponent<Renderer>();
 
-        if (objectRenderer != null)
+        if (objectRenderer != null && redMaterial != null)
         {
-            // Force the object to start with the red material
-            if (redMaterial != null)
-            {
-                objectRenderer.material = redMaterial;
-            }
+            objectRenderer.material = redMaterial;
         }
     }
 
-    private void OnMouseDown()
+    public void PressButton()
     {
-        if (objectRenderer != null && redMaterial != null && greenMaterial != null)
+        if (objectRenderer == null ||
+            redMaterial == null ||
+            greenMaterial == null)
+            return;
+
+        if (objectRenderer.sharedMaterial == greenMaterial)
         {
-            // Toggle between the two materials
-            if (objectRenderer.sharedMaterial == greenMaterial)
+            objectRenderer.material = redMaterial;
+        }
+        else
+        {
+            objectRenderer.material = greenMaterial;
+
+            foreach (FlickerBehaviour zone in powerZones)
             {
-                objectRenderer.material = redMaterial;
+                if (zone != null)
+                    zone.RestorePower();
             }
-            else
+
+            foreach (GameObject obj in objectsToActivate)
             {
-                objectRenderer.material = greenMaterial;
+                if (obj != null)
+                    obj.SetActive(true);
             }
         }
     }

@@ -2,26 +2,26 @@ using UnityEngine;
 
 public class ButtonPushBehaviour : MonoBehaviour
 {
-    public GameObject button;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public Camera playerCamera;
+    public float interactDistance = 3f;
+
+    private void Update()
     {
-        
-    }
+        if (playerCamera == null) return;
 
-    // Update is called once per frame
-    void Update()
-    {
-       if (Input.GetMouseButtonDown(0))
+        if (!Input.GetMouseButtonDown(0)) return;
+
+        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+
+        if (Physics.Raycast(ray, out RaycastHit hit, interactDistance))
         {
+            ButtonBehaviour button =
+                hit.collider.GetComponentInParent<ButtonBehaviour>();
 
-        } 
-
-       if (Input.GetMouseButtonUp(0))
-        {
-
+            if (button != null)
+            {
+                button.PressButton();
+            }
         }
-
-       
     }
 }

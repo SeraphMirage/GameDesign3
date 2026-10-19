@@ -6,6 +6,12 @@ public class RespawnBehaviour : MonoBehaviour
     public static RespawnBehaviour instance;
     public GameObject container;
 
+    private void Start()
+    {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+
     private void Awake()
     {
         instance = this;

@@ -157,7 +157,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterBehaviour
   Player: {fileID: 0}
-  chaseSpeed: 3
+  chaseSpeed: 3.5
   aggroDistance: 5
   spawnGracePeriod: 1
 --- !u!114 &4878184085450328368

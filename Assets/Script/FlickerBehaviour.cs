@@ -3,7 +3,7 @@ using System.Collections;
 
 public class FlickerBehaviour : MonoBehaviour
 {
-    [SerializeField] private Light targetLight;
+    [SerializeField] private Light[] targetLights;
 
     public float minIntensity = 0.9f;
     public float maxIntensity = 2f;
@@ -17,7 +17,12 @@ public class FlickerBehaviour : MonoBehaviour
 
         if (flickerRoutine == null)
         {
-            targetLight.enabled = true;
+            foreach (Light light in targetLights)
+            {
+                if (light != null)
+                    light.enabled = true;
+            }
+
             flickerRoutine = StartCoroutine(FlickerLight());
         }
     }
@@ -26,7 +31,12 @@ public class FlickerBehaviour : MonoBehaviour
     {
         while (true)
         {
-            targetLight.intensity = Random.Range(minIntensity, maxIntensity);
+            foreach (Light light in targetLights)
+            {
+                if (light != null)
+                    light.intensity = Random.Range(
+                        minIntensity, maxIntensity);
+            }
 
             yield return new WaitForSeconds(flickerSpeed);
         }
@@ -42,9 +52,25 @@ public class FlickerBehaviour : MonoBehaviour
             flickerRoutine = null;
         }
 
-        if (targetLight != null)
+        foreach (Light light in targetLights)
         {
-            targetLight.enabled = false;
+            if (light != null)
+                light.enabled = false;
+        }
+    }
+
+    public void RestorePower()
+    {
+        if (flickerRoutine != null)
+        {
+            StopCoroutine(flickerRoutine);
+            flickerRoutine = null;
+        }
+
+        foreach (Light light in targetLights)
+        {
+            if (light != null)
+                light.enabled = true;
         }
     }
 }
