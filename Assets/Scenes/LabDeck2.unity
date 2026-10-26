@@ -2337,7 +2337,7 @@ Transform:
   m_GameObject: {fileID: 231743975}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.47, y: -1.73, z: 6.08}
+  m_LocalPosition: {x: -4.47, y: 1.88, z: 6.08}
   m_LocalScale: {x: 9.43, y: 8.54, z: 5.17}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8785,13 +8785,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraBehaviour
   Player: {fileID: 924061697}
-  offset: {x: 0, y: 2, z: -4}
+  firstPersonOffset: {x: 0, y: 1.6, z: 0}
   rotateSpeed: 5
   minVerticalAngle: -35
   maxVerticalAngle: 60
-  collisionRadius: 0.2
-  collisionPadding: 0.1
-  cameraSmoothSpeed: 15
 --- !u!1 &1005872426
 GameObject:
   m_ObjectHideFlags: 0
