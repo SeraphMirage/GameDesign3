@@ -1,63 +1,56 @@
 using UnityEngine;
-
-using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class ShipMapUI : MonoBehaviour
+public class ShipMapUIBehaviour : MonoBehaviour
 {
-    public GameObject mapPanel;
-
-    private bool mapOpen = false;
+    void Awake()
+    {
+        ShowMouse();
+    }
 
     void Start()
     {
-        if (mapPanel != null)
-        {
-            mapPanel.SetActive(false);
-        }
+        ShowMouse();
     }
 
     void Update()
     {
-        if (mapOpen && Input.GetKeyDown(KeyCode.Escape))
+        ShowMouse();
+
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            CloseMap();
+            ExitMap();
         }
     }
 
-    public void OpenMap()
+    void LateUpdate()
     {
-        mapOpen = true;
+        ShowMouse();
+    }
 
-        if (mapPanel != null)
-        {
-            mapPanel.SetActive(true);
-        }
-
+    private void ShowMouse()
+    {
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
-    public void CloseMap()
+    public void GoToTopDeck()
     {
-        mapOpen = false;
-
-        if (mapPanel != null)
-        {
-            mapPanel.SetActive(false);
-        }
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        SceneManager.LoadScene("Top Deck");
     }
 
-    public void GoToUpperDeck()
+    public void GoToBottomDeck()
     {
-        SceneManager.LoadScene("UpperDeck");
+        SceneManager.LoadScene("LabDeck2");
     }
 
-    public void GoToLowerDeck()
+    public void ExitMap()
     {
-        SceneManager.LoadScene("LowerDeck");
+        string returnScene = PlayerPrefs.GetString(
+            "MapReturnScene",
+            "Top Deck"
+        );
+
+        SceneManager.LoadScene(returnScene);
     }
 }
