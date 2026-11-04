@@ -10,10 +10,14 @@ public class FlickerBehaviour : MonoBehaviour
     public float flickerSpeed = 0.1f;
 
     private Coroutine flickerRoutine;
+    private bool hasTriggered = false;
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
+        if (hasTriggered) return;
+
+        hasTriggered = true;
 
         if (flickerRoutine == null)
         {

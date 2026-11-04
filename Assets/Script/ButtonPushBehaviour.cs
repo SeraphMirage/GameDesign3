@@ -11,16 +11,30 @@ public class ButtonPushBehaviour : MonoBehaviour
 
         if (!Input.GetMouseButtonDown(0)) return;
 
-        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Ray ray = playerCamera.ViewportPointToRay(
+            new Vector3(0.5f, 0.5f, 0f)
+        );
 
         if (Physics.Raycast(ray, out RaycastHit hit, interactDistance))
         {
-            ButtonBehaviour button =
+            // POWER BUTTON
+            ButtonBehaviour powerButton =
                 hit.collider.GetComponentInParent<ButtonBehaviour>();
 
-            if (button != null)
+            if (powerButton != null)
             {
-                button.PressButton();
+                powerButton.PressButton();
+                return;
+            }
+
+            // TEMPERATURE BUTTON
+            TempControlBehaviour tempButton =
+    hit.collider.GetComponentInParent<TempControlBehaviour>();
+
+            if (tempButton != null)
+            {
+                tempButton.RepairSystem();
+                return;
             }
         }
     }
