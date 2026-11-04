@@ -46,6 +46,16 @@ public class ButtonPushBehaviour : MonoBehaviour
                 computer.EnterComputer();
                 return;
             }
+
+            // VALVE INTERACTION
+            CWRotationBevahiour valve =
+                hit.collider.GetComponentInParent<CWRotationBevahiour>();
+
+            if (valve != null)
+            {
+                valve.RotateClockwise();
+                return;
+            }
         }
     }
 }
