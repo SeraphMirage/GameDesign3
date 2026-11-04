@@ -8812,7 +8812,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 677470920}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+<<<<<<< Updated upstream
 --- !u!1 &683963773
+=======
+--- !u!1 &687471599
+>>>>>>> Stashed changes
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8820,6 +8824,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+<<<<<<< Updated upstream
   - component: {fileID: 683963774}
   - component: {fileID: 683963775}
   m_Layer: 0
@@ -8830,11 +8835,23 @@ GameObject:
   m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &683963774
+=======
+  - component: {fileID: 687471600}
+  m_Layer: 0
+  m_Name: MonsterSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &687471600
+>>>>>>> Stashed changes
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< Updated upstream
   m_GameObject: {fileID: 683963773}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
@@ -8909,6 +8926,17 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+=======
+  m_GameObject: {fileID: 687471599}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 9.49458, y: 2, z: -6.74}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+>>>>>>> Stashed changes
 --- !u!1 &691469958
 GameObject:
   m_ObjectHideFlags: 0
@@ -24577,6 +24605,90 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 2029605935}
   m_SourcePrefab: {fileID: 100100000, guid: ea6ef839895f2564d8ac41c8f7a420d8, type: 3}
+<<<<<<< Updated upstream
+=======
+--- !u!1001 &6884486252762477662
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3345141836556766467, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: m_Name
+      value: Monster
+      objectReference: {fileID: 0}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 924061697}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: spawnPoint
+      value: 
+      objectReference: {fileID: 687471600}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: 'patrolPoints.Array.data[0]'
+      value: 
+      objectReference: {fileID: 184423844}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: 'patrolPoints.Array.data[1]'
+      value: 
+      objectReference: {fileID: 727956431}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: 'patrolPoints.Array.data[2]'
+      value: 
+      objectReference: {fileID: 290986006}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: 'patrolPoints.Array.data[3]'
+      value: 
+      objectReference: {fileID: 2132388408}
+    - target: {fileID: 6961570093281077780, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 8.93
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961570093281077780, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.07
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961570093281077780, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -6.74
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961570093281077780, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961570093281077780, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961570093281077780, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961570093281077780, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961570093281077780, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961570093281077780, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961570093281077780, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 86337b21ab0f8084e877196313555618, type: 3}
+>>>>>>> Stashed changes
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -24625,8 +24737,12 @@ SceneRoots:
   - {fileID: 290986006}
   - {fileID: 2132388408}
   - {fileID: 1959531752}
+<<<<<<< Updated upstream
   - {fileID: 1374167222}
   - {fileID: 1630428076}
   - {fileID: 1094787657}
   - {fileID: 2010960432}
   - {fileID: 742386349}
+=======
+  - {fileID: 687471600}
+>>>>>>> Stashed changes
