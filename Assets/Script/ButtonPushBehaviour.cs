@@ -36,6 +36,16 @@ public class ButtonPushBehaviour : MonoBehaviour
                 tempButton.RepairSystem();
                 return;
             }
+
+            // COMPUTER INTERACTION
+            ComputerInteractionBehaviour computer =
+                hit.collider.GetComponentInParent<ComputerInteractionBehaviour>();
+
+            if (computer != null)
+            {
+                computer.EnterComputer();
+                return;
+            }
         }
     }
 }

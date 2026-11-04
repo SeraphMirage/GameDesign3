@@ -9,6 +9,8 @@ public class CameraBehaviour : MonoBehaviour
     public float minVerticalAngle = -35f;
     public float maxVerticalAngle = 60f;
 
+    public bool canLook = true;
+
     private float mouseX;
     private float mouseY;
 
@@ -25,7 +27,7 @@ public class CameraBehaviour : MonoBehaviour
 
     void LateUpdate()
     {
-        if (Player == null) return;
+        if (Player == null || !canLook) return;
 
         mouseX += Input.GetAxis("Mouse X") * rotateSpeed;
         mouseY -= Input.GetAxis("Mouse Y") * rotateSpeed;

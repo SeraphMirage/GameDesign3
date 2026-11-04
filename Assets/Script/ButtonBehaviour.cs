@@ -7,6 +7,7 @@ public class ButtonBehaviour : MonoBehaviour
     public Material greenMaterial;
 
     public FlickerBehaviour[] powerZones;
+    public ScreedOffBehaviour[] screenZones;
     public GameObject[] objectsToActivate;
 
     private Renderer objectRenderer;
@@ -40,6 +41,12 @@ public class ButtonBehaviour : MonoBehaviour
             {
                 if (zone != null)
                     zone.RestorePower();
+            }
+
+            foreach (ScreedOffBehaviour zone in screenZones)
+            {
+                if (zone != null)
+                    zone.TurnScreensOn();
             }
 
             foreach (GameObject obj in objectsToActivate)
