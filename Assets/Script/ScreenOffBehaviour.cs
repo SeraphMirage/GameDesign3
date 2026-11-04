@@ -10,6 +10,7 @@ public class ScreedOffBehaviour : MonoBehaviour
     public TMP_Text[] targetTexts;
 
     private bool hasTriggered = false;
+    private bool powerRestored = false;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -35,6 +36,7 @@ public class ScreedOffBehaviour : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
         if (!hasTriggered) return;
+        if (powerRestored) return;
 
         foreach (Renderer obj in targetObjects)
         {
@@ -51,6 +53,8 @@ public class ScreedOffBehaviour : MonoBehaviour
 
     public void TurnScreensOn()
     {
+        powerRestored = true;
+
         foreach (Renderer obj in targetObjects)
         {
             if (obj != null)

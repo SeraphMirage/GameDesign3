@@ -11,6 +11,7 @@ public class FlickerBehaviour : MonoBehaviour
 
     private Coroutine flickerRoutine;
     private bool hasTriggered = false;
+    private bool powerRestored = false;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -49,6 +50,7 @@ public class FlickerBehaviour : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Player")) return;
+        if (powerRestored) return;
 
         if (flickerRoutine != null)
         {
@@ -65,6 +67,8 @@ public class FlickerBehaviour : MonoBehaviour
 
     public void RestorePower()
     {
+        powerRestored = true;
+
         if (flickerRoutine != null)
         {
             StopCoroutine(flickerRoutine);
