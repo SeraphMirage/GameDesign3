@@ -361,6 +361,7 @@ GameObject:
   - component: {fileID: 796543627}
   - component: {fileID: 796543626}
   - component: {fileID: 796543629}
+  - component: {fileID: 796543630}
   m_Layer: 5
   m_Name: Bottom Deck Button
   m_TagString: Untagged
@@ -497,6 +498,20 @@ MonoBehaviour:
   deckName: Bottom Deck
   sceneName: LabDeck2
   statusText: {fileID: 1404538539}
+--- !u!114 &796543630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796543624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d82fce7d63d566e4197081d08397cdfc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeckHoverStatus
+  deckName: Bottom Deck
+  statusText: {fileID: 1404538539}
 --- !u!1 &995129795
 GameObject:
   m_ObjectHideFlags: 0
@@ -510,6 +525,7 @@ GameObject:
   - component: {fileID: 995129798}
   - component: {fileID: 995129797}
   - component: {fileID: 995129800}
+  - component: {fileID: 995129801}
   m_Layer: 5
   m_Name: Top Deck Button
   m_TagString: Untagged
@@ -646,6 +662,20 @@ MonoBehaviour:
   deckName: Top Deck
   sceneName: Top Deck
   statusText: {fileID: 1404538539}
+--- !u!114 &995129801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 995129795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d82fce7d63d566e4197081d08397cdfc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeckHoverStatus
+  deckName: Top Deck
+  statusText: {fileID: 1404538539}
 --- !u!1 &1133561186
 GameObject:
   m_ObjectHideFlags: 0
@@ -764,8 +794,7 @@ Transform:
   m_LocalPosition: {x: 141, y: 382, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1404538538}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1376951959
@@ -935,12 +964,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1195052184}
+  m_Father: {fileID: 2029522235}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 117.399994, y: -15.299988}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -200.20001, y: -3.7000122}
+  m_SizeDelta: {x: 230, y: 330}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1404538539
 MonoBehaviour:
@@ -962,7 +991,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Deck Status
+  m_text: 'Test
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -971,8 +1002,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294638335
+  m_fontColor: {r: 1, g: 0.9803922, b: 0.9803922, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -989,8 +1020,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 37
-  m_fontSizeBase: 37
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1028,7 +1059,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -33.919067, w: -260.32907}
+  m_margin: {x: 0, y: 0, z: 0.000061035156, w: -0.000061035156}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1218,6 +1249,7 @@ RectTransform:
   m_Children:
   - {fileID: 1133561187}
   - {fileID: 2067398280}
+  - {fileID: 1404538538}
   - {fileID: 995129796}
   - {fileID: 796543625}
   m_Father: {fileID: 0}
@@ -1370,7 +1402,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 3.9993, y: -5.9023}
+  m_AnchoredPosition: {x: 3.999298, y: -5.902313}
   m_SizeDelta: {x: -223.0711, y: -100.4265}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2067398281
@@ -1417,6 +1449,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 119356723}
   - {fileID: 2060322541}
+  - {fileID: 1195052184}
   - {fileID: 2029522235}
   - {fileID: 1545672393}
-  - {fileID: 1195052184}

@@ -1,15 +1,10 @@
+
 using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class MonsterBehaviour : MonoBehaviour
 {
-    [Header("Deck")]
-    public string deckName = "Bottom Deck";
-
-    [Header("Spawn")]
-    public Transform spawnPoint;
-
     [Header("Player")]
     public Transform player;
 
@@ -18,8 +13,17 @@ public class MonsterBehaviour : MonoBehaviour
     public float chaseSpeed = 5f;
 
     [Header("Patrol")]
-    public Transform[] patrolPoints;
     public float patrolWaitTime = 1f;
+
+    [Header("Top Deck")]
+    public Transform topDeckSpawn;
+    public Transform[] topDeckPatrolPoints;
+    public BoxCollider topDeckArea;
+
+    [Header("Bottom Deck")]
+    public Transform bottomDeckSpawn;
+    public Transform[] bottomDeckPatrolPoints;
+    public BoxCollider bottomDeckArea;
 
     [Header("Vision")]
     public float sightDistance = 12f;
@@ -31,58 +35,48 @@ public class MonsterBehaviour : MonoBehaviour
 
     private NavMeshAgent agent;
 
+    private Transform[] patrolPoints;
     private int currentPatrolPoint = 0;
     private float waitTimer = 0f;
 
-    private bool canSeePlayer;
-    private bool monsterPresent;
-    private bool initialized;
-
-    private Renderer[] monsterRenderers;
-    private Collider[] monsterColliders;
+    private bool canSeePlayer = false;
+    private string currentDeck = "";
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
 
-        monsterRenderers =
-            GetComponentsInChildren<Renderer>(true);
+        // Find Player automatically.
+        if (player == null)
+        {
+            GameObject playerObject =
+                GameObject.FindGameObjectWithTag("Player");
 
-        monsterColliders =
-            GetComponentsInChildren<Collider>(true);
+            if (playerObject != null)
+                player = playerObject.transform;
+            else
+                Debug.LogError(
+                    "Monster cannot find Player!",
+                    this
+                );
+        }
 
-        FindPlayer();
-
-        // Start hidden until we know which deck owns the monster.
-        SetVisible(false);
-
-        CheckDeckPresence();
+        // Synchronize with DeckStatusManager.
+        SyncWithDeckManager();
     }
 
     void Update()
     {
-        if (DeckStatusManager.Instance == null)
-            return;
-
-        bool shouldBeHere =
-            DeckStatusManager.Instance.IsMonsterOnDeck(deckName);
-
-        // Monster changed decks.
-        if (!initialized || shouldBeHere != monsterPresent)
-        {
-            CheckDeckPresence();
-        }
-
-        if (!monsterPresent)
-            return;
-
-        if (!agent.enabled || !agent.isOnNavMesh)
-            return;
+        // Keep monster assigned to the correct deck.
+        SyncWithDeckManager();
 
         if (player == null)
-            FindPlayer();
+            return;
 
-        if (player == null)
+        if (!agent.isOnNavMesh)
+            return;
+
+        if (currentDeck == "")
             return;
 
         CheckLineOfSight();
@@ -93,132 +87,102 @@ public class MonsterBehaviour : MonoBehaviour
             Patrol();
     }
 
-    void FindPlayer()
-    {
-        GameObject playerObject =
-            GameObject.FindGameObjectWithTag("Player");
-
-        if (playerObject != null)
-        {
-            player = playerObject.transform;
-        }
-    }
-
-    void CheckDeckPresence()
+    void SyncWithDeckManager()
     {
         if (DeckStatusManager.Instance == null)
             return;
 
-        monsterPresent =
-            DeckStatusManager.Instance.IsMonsterOnDeck(deckName);
+        string assignedDeck =
+            DeckStatusManager.Instance.monsterDeck;
 
-        initialized = true;
-
-        if (monsterPresent)
-            SpawnMonster();
-        else
-            HideMonster();
+        // Only relocate when the assigned deck changes.
+        if (assignedDeck != currentDeck)
+        {
+            ChangeDeck(assignedDeck);
+        }
     }
 
-    void SpawnMonster()
+    void ChangeDeck(string newDeck)
     {
-        if (spawnPoint == null)
-        {
-            Debug.LogWarning(
-                "No Monster Spawn Point assigned on " + deckName
-            );
+        Transform destination;
 
-            return;
+        if (newDeck == "Top Deck")
+        {
+            destination = topDeckSpawn;
+            patrolPoints = topDeckPatrolPoints;
         }
-
-        // Stop the agent while repositioning.
-        if (agent.enabled)
+        else if (newDeck == "Bottom Deck")
         {
-            if (agent.isOnNavMesh)
-                agent.ResetPath();
-
-            agent.enabled = false;
-        }
-
-        // Find the NavMesh near this deck's spawn point.
-        if (NavMesh.SamplePosition(
-            spawnPoint.position,
-            out NavMeshHit hit,
-            5f,
-            NavMesh.AllAreas))
-        {
-            transform.position = hit.position;
-            transform.rotation = spawnPoint.rotation;
+            destination = bottomDeckSpawn;
+            patrolPoints = bottomDeckPatrolPoints;
         }
         else
         {
-            Debug.LogError(
-                "Monster spawn point is not near a NavMesh on " +
-                deckName
-            );
-
+            Debug.LogWarning("Unknown deck: " + newDeck);
             return;
         }
 
-        // Make monster visible.
-        SetVisible(true);
+        if (destination == null)
+        {
+            Debug.LogWarning(
+                "Monster spawn is missing for " + newDeck
+            );
+            return;
+        }
 
-        // Turn NavMesh movement back on.
-        agent.enabled = true;
+        // Find the NavMesh near the deck spawn.
+        NavMeshHit hit;
 
-        agent.speed = patrolSpeed;
+        if (!NavMesh.SamplePosition(
+            destination.position,
+            out hit,
+            1.5f,
+            NavMesh.AllAreas))
+        {
+            Debug.LogWarning(
+                "No NavMesh near spawn for " + newDeck
+            );
+            return;
+        }
+
+        // Warp is safer than setting transform.position
+        // directly when using a NavMeshAgent.
+        agent.ResetPath();
+
+        if (!agent.Warp(hit.position))
+        {
+            Debug.LogWarning(
+                "Monster could not warp to " + newDeck
+            );
+            return;
+        }
+
+        currentDeck = newDeck;
 
         currentPatrolPoint = 0;
         waitTimer = 0f;
         canSeePlayer = false;
 
-        if (agent.isOnNavMesh)
-        {
-            GoToCurrentPatrolPoint();
-
-            Debug.Log(
-                "MONSTER APPEARED ON: " + deckName
-            );
-        }
-        else
-        {
-            Debug.LogError(
-                "Monster spawned but is not on NavMesh: " +
-                deckName
-            );
-        }
-    }
-
-    void HideMonster()
-    {
-        canSeePlayer = false;
-
-        if (agent.enabled)
-        {
-            if (agent.isOnNavMesh)
-                agent.ResetPath();
-
-            agent.enabled = false;
-        }
-
-        SetVisible(false);
-
         Debug.Log(
-            "MONSTER DISAPPEARED FROM: " + deckName
+            "Monster physically moved to: " + currentDeck
         );
+
+        GoToCurrentPatrolPoint();
     }
 
-    void SetVisible(bool visible)
+    bool IsPlayerOnCurrentDeck()
     {
-        foreach (Renderer renderer in monsterRenderers)
-        {
-            renderer.enabled = visible;
-        }
+        BoxCollider area = null;
 
-        foreach (Collider collider in monsterColliders)
-        {
-            collider.enabled = visible;
-        }
+        if (currentDeck == "Top Deck")
+            area = topDeckArea;
+        else if (currentDeck == "Bottom Deck")
+            area = bottomDeckArea;
+
+        if (area == null || player == null)
+            return false;
+
+        return area.bounds.Contains(player.position);
     }
 
     void Patrol()
@@ -233,7 +197,7 @@ public class MonsterBehaviour : MonoBehaviour
             return;
 
         if (agent.remainingDistance <=
-            agent.stoppingDistance + 0.2f)
+            agent.stoppingDistance)
         {
             waitTimer += Time.deltaTime;
 
@@ -243,8 +207,11 @@ public class MonsterBehaviour : MonoBehaviour
 
                 currentPatrolPoint++;
 
-                if (currentPatrolPoint >= patrolPoints.Length)
+                if (currentPatrolPoint >=
+                    patrolPoints.Length)
+                {
                     currentPatrolPoint = 0;
+                }
 
                 GoToCurrentPatrolPoint();
             }
@@ -253,7 +220,7 @@ public class MonsterBehaviour : MonoBehaviour
 
     void GoToCurrentPatrolPoint()
     {
-        if (!agent.enabled || !agent.isOnNavMesh)
+        if (!agent.isOnNavMesh)
             return;
 
         if (patrolPoints == null ||
@@ -266,14 +233,8 @@ public class MonsterBehaviour : MonoBehaviour
         if (point == null)
             return;
 
-        if (NavMesh.SamplePosition(
-            point.position,
-            out NavMeshHit hit,
-            3f,
-            agent.areaMask))
-        {
-            agent.SetDestination(hit.position);
-        }
+        agent.speed = patrolSpeed;
+        agent.SetDestination(point.position);
     }
 
     void ChasePlayer()
@@ -281,29 +242,31 @@ public class MonsterBehaviour : MonoBehaviour
         if (player == null)
             return;
 
-        agent.speed = chaseSpeed;
-
-        if (NavMesh.SamplePosition(
-            player.position,
-            out NavMeshHit hit,
-            3f,
-            agent.areaMask))
+        // Never chase someone on a different deck.
+        if (!IsPlayerOnCurrentDeck())
         {
-            agent.SetDestination(hit.position);
+            canSeePlayer = false;
+            GoToCurrentPatrolPoint();
+            return;
         }
+
+        agent.speed = chaseSpeed;
+        agent.SetDestination(player.position);
     }
 
     void CheckLineOfSight()
     {
         canSeePlayer = false;
 
+        // Only detect a player on the assigned deck.
+        if (!IsPlayerOnCurrentDeck())
+            return;
+
         Vector3 eyePosition =
-            transform.position +
-            Vector3.up * eyeHeight;
+            transform.position + Vector3.up * eyeHeight;
 
         Vector3 playerTarget =
-            player.position +
-            Vector3.up * 0.5f;
+            player.position + Vector3.up * 0.5f;
 
         Vector3 directionToPlayer =
             playerTarget - eyePosition;
@@ -314,25 +277,23 @@ public class MonsterBehaviour : MonoBehaviour
         if (distanceToPlayer > sightDistance)
             return;
 
-        Vector3 flatDirection =
-            new Vector3(
-                directionToPlayer.x,
-                0f,
-                directionToPlayer.z
-            );
+        Vector3 flatDirection = new Vector3(
+            directionToPlayer.x,
+            0f,
+            directionToPlayer.z
+        );
 
         if (flatDirection.sqrMagnitude <= 0.001f)
             return;
 
         flatDirection.Normalize();
 
-        float angle =
-            Vector3.Angle(
-                transform.forward,
-                flatDirection
-            );
+        float angleToPlayer = Vector3.Angle(
+            transform.forward,
+            flatDirection
+        );
 
-        if (angle > fieldOfView / 2f)
+        if (angleToPlayer > fieldOfView / 2f)
             return;
 
         if (Physics.Raycast(
@@ -341,8 +302,7 @@ public class MonsterBehaviour : MonoBehaviour
             out RaycastHit hit,
             distanceToPlayer))
         {
-            if (
-                hit.transform.CompareTag("Player") ||
+            if (hit.transform.CompareTag("Player") ||
                 hit.transform.root.CompareTag("Player"))
             {
                 canSeePlayer = true;
@@ -353,11 +313,9 @@ public class MonsterBehaviour : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         Vector3 eyePosition =
-            transform.position +
-            Vector3.up * eyeHeight;
+            transform.position + Vector3.up * eyeHeight;
 
         Gizmos.color = Color.yellow;
-
         Gizmos.DrawWireSphere(
             eyePosition,
             sightDistance
@@ -365,16 +323,12 @@ public class MonsterBehaviour : MonoBehaviour
 
         Vector3 leftDirection =
             Quaternion.Euler(
-                0f,
-                -fieldOfView / 2f,
-                0f
+                0f, -fieldOfView / 2f, 0f
             ) * transform.forward;
 
         Vector3 rightDirection =
             Quaternion.Euler(
-                0f,
-                fieldOfView / 2f,
-                0f
+                0f, fieldOfView / 2f, 0f
             ) * transform.forward;
 
         Gizmos.color = Color.red;
@@ -387,6 +341,13 @@ public class MonsterBehaviour : MonoBehaviour
         Gizmos.DrawRay(
             eyePosition,
             rightDirection * sightDistance
+        );
+
+        Gizmos.color = Color.blue;
+
+        Gizmos.DrawRay(
+            eyePosition,
+            transform.forward * sightDistance
         );
     }
 }
