@@ -3,54 +3,86 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-public class DeckButtonBehaviour : MonoBehaviour,
+public class DeckButtonBehaviour :
+    MonoBehaviour,
     IPointerEnterHandler,
     IPointerExitHandler
 {
     [Header("Deck")]
     public string deckName;
+
+    [Header("Scene")]
     public string sceneName;
 
-    [Header("Display")]
+    [Header("Status Text")]
     public TMP_Text statusText;
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public void OnPointerEnter(
+        PointerEventData eventData)
     {
         if (statusText == null)
-            return;
+        {
+            Debug.LogWarning(
+                "No Status Text assigned to " + deckName
+            );
 
-        DeckStatusManager manager = DeckStatusManager.Instance;
+            return;
+        }
 
         bool working = true;
         bool monsterHere = false;
 
-        if (manager != null)
+        if (DeckStatusManager.Instance != null)
         {
-            working = manager.IsDeckWorking(deckName);
-            monsterHere = manager.IsMonsterOnDeck(deckName);
+            working =
+                DeckStatusManager.Instance
+                    .IsDeckWorking(deckName);
+
+            monsterHere =
+                DeckStatusManager.Instance
+                    .IsMonsterOnDeck(deckName);
         }
 
-        string condition = working
-            ? "<color=green>WORKING</color>"
-            : "<color=red>NEEDS REPAIR</color>";
+        string repairStatus;
 
-        string monsterWarning = monsterHere
-            ? "\n<color=red>WARNING: MONSTER DETECTED</color>"
-            : "\n<color=green>NO MONSTER DETECTED</color>";
+        if (working)
+        {
+            repairStatus =
+                "<color=green>WORKING</color>";
+        }
+        else
+        {
+            repairStatus =
+                "<color=red>NEEDS REPAIR</color>";
+        }
+
+        string monsterStatus;
+
+        if (monsterHere)
+        {
+            monsterStatus =
+                "<color=red>MONSTER DETECTED</color>";
+        }
+        else
+        {
+            monsterStatus =
+                "<color=green>NO MONSTER DETECTED</color>";
+        }
 
         statusText.richText = true;
-        statusText.color = Color.white;
 
         statusText.text =
             deckName +
             "\n" +
-            condition +
-            monsterWarning;
+            repairStatus +
+            "\n" +
+            monsterStatus;
 
         statusText.gameObject.SetActive(true);
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    public void OnPointerExit(
+        PointerEventData eventData)
     {
         if (statusText != null)
         {
@@ -61,19 +93,7 @@ public class DeckButtonBehaviour : MonoBehaviour,
     public void EnterDeck()
     {
         if (string.IsNullOrEmpty(sceneName))
-        {
-            Debug.LogWarning("No scene assigned to " + deckName);
             return;
-        }
-
-        if (!Application.CanStreamedLevelBeLoaded(sceneName))
-        {
-            Debug.LogWarning(
-                sceneName + " is not included in the Build Profile!"
-            );
-
-            return;
-        }
 
         SceneManager.LoadScene(sceneName);
     }

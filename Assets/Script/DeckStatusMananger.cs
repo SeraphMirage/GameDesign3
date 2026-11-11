@@ -35,6 +35,13 @@ public class DeckStatusManager : MonoBehaviour
         deckStatus["Bottom Deck"] = true;
     }
 
+    void Start()
+    {
+        Debug.Log(
+            "Monster currently on: " + monsterDeck
+        );
+    }
+
     void Update()
     {
         timer += Time.deltaTime;
@@ -48,7 +55,8 @@ public class DeckStatusManager : MonoBehaviour
 
     void MoveMonsterToAnotherDeck()
     {
-        List<string> choices = new List<string>();
+        List<string> choices =
+            new List<string>();
 
         foreach (string deck in availableDecks)
         {
@@ -61,15 +69,27 @@ public class DeckStatusManager : MonoBehaviour
         if (choices.Count == 0)
             return;
 
+        string oldDeck = monsterDeck;
+
         monsterDeck =
             choices[Random.Range(0, choices.Count)];
 
-        Debug.Log("Monster moved to: " + monsterDeck);
+        Debug.Log(
+            "Monster moved from " +
+            oldDeck +
+            " to " +
+            monsterDeck
+        );
     }
 
     public bool IsMonsterOnDeck(string deckName)
     {
         return monsterDeck == deckName;
+    }
+
+    public string GetMonsterDeck()
+    {
+        return monsterDeck;
     }
 
     public bool IsDeckWorking(string deckName)
@@ -80,7 +100,9 @@ public class DeckStatusManager : MonoBehaviour
         return true;
     }
 
-    public void SetDeckStatus(string deckName, bool working)
+    public void SetDeckStatus(
+        string deckName,
+        bool working)
     {
         deckStatus[deckName] = working;
     }
