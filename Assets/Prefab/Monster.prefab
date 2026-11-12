@@ -131,15 +131,19 @@ MonoBehaviour:
   player: {fileID: 0}
   patrolSpeed: 2
   chaseSpeed: 3
-  patrolPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   patrolWaitTime: 0.5
+  topDeckSpawn: {fileID: 0}
+  topDeckPatrolPoints: []
+  topDeckArea: {fileID: 0}
+  bottomDeckSpawn: {fileID: 0}
+  bottomDeckPatrolPoints: []
+  bottomDeckArea: {fileID: 0}
   sightDistance: 10
   fieldOfView: 36
   eyeHeight: 1
+  searchDuration: 4
+  searchSpeed: 2.5
+  maxTravelTime: 12
 --- !u!195 &5379769617015609163
 NavMeshAgent:
   m_ObjectHideFlags: 0

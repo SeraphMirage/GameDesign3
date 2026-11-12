@@ -26,12 +26,19 @@ public class MonsterBehaviour : MonoBehaviour
     public BoxCollider bottomDeckArea;
 
     [Header("Vision")]
-    public float sightDistance = 12f;
+    public float sightDistance = 22f;
 
     [Range(0f, 360f)]
-    public float fieldOfView = 90f;
+    public float fieldOfView = 110f;
 
     public float eyeHeight = 1f;
+
+    [Header("Search")]
+    public float searchDuration = 15f;
+    public float searchSpeed = 2.5f;
+    public float maxTravelTime = 12f;
+    public float searchRadius = 12f;
+    public float searchPointWaitTime = 1f;
 
     private NavMeshAgent agent;
 
@@ -42,11 +49,27 @@ public class MonsterBehaviour : MonoBehaviour
     private bool canSeePlayer = false;
     private string currentDeck = "";
 
+    private Vector3 lastKnownPlayerPosition;
+    private float searchTimer = 0f;
+    private float travelTimer = 0f;
+    private float searchPointWaitTimer = 0f;
+
+    private bool reachedSearchLocation = false;
+    private bool waitingAtSearchPoint = false;
+
+    private enum MonsterState
+    {
+        Patrol,
+        Chase,
+        Search
+    }
+
+    private MonsterState currentState = MonsterState.Patrol;
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
 
-        // Find Player automatically.
         if (player == null)
         {
             GameObject playerObject =
@@ -54,20 +77,13 @@ public class MonsterBehaviour : MonoBehaviour
 
             if (playerObject != null)
                 player = playerObject.transform;
-            else
-                Debug.LogError(
-                    "Monster cannot find Player!",
-                    this
-                );
         }
 
-        // Synchronize with DeckStatusManager.
         SyncWithDeckManager();
     }
 
     void Update()
     {
-        // Keep monster assigned to the correct deck.
         SyncWithDeckManager();
 
         if (player == null)
@@ -82,9 +98,34 @@ public class MonsterBehaviour : MonoBehaviour
         CheckLineOfSight();
 
         if (canSeePlayer)
-            ChasePlayer();
-        else
-            Patrol();
+        {
+            lastKnownPlayerPosition = player.position;
+
+            if (currentState != MonsterState.Chase)
+            {
+                currentState = MonsterState.Chase;
+                agent.ResetPath();
+            }
+        }
+        else if (currentState == MonsterState.Chase)
+        {
+            StartSearching();
+        }
+
+        switch (currentState)
+        {
+            case MonsterState.Patrol:
+                Patrol();
+                break;
+
+            case MonsterState.Chase:
+                ChasePlayer();
+                break;
+
+            case MonsterState.Search:
+                SearchForPlayer();
+                break;
+        }
     }
 
     void SyncWithDeckManager()
@@ -95,7 +136,6 @@ public class MonsterBehaviour : MonoBehaviour
         string assignedDeck =
             DeckStatusManager.Instance.monsterDeck;
 
-        // Only relocate when the assigned deck changes.
         if (assignedDeck != currentDeck)
         {
             ChangeDeck(assignedDeck);
@@ -118,19 +158,12 @@ public class MonsterBehaviour : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Unknown deck: " + newDeck);
             return;
         }
 
         if (destination == null)
-        {
-            Debug.LogWarning(
-                "Monster spawn is missing for " + newDeck
-            );
             return;
-        }
 
-        // Find the NavMesh near the deck spawn.
         NavMeshHit hit;
 
         if (!NavMesh.SamplePosition(
@@ -139,23 +172,13 @@ public class MonsterBehaviour : MonoBehaviour
             1.5f,
             NavMesh.AllAreas))
         {
-            Debug.LogWarning(
-                "No NavMesh near spawn for " + newDeck
-            );
             return;
         }
 
-        // Warp is safer than setting transform.position
-        // directly when using a NavMeshAgent.
         agent.ResetPath();
 
         if (!agent.Warp(hit.position))
-        {
-            Debug.LogWarning(
-                "Monster could not warp to " + newDeck
-            );
             return;
-        }
 
         currentDeck = newDeck;
 
@@ -163,9 +186,15 @@ public class MonsterBehaviour : MonoBehaviour
         waitTimer = 0f;
         canSeePlayer = false;
 
-        Debug.Log(
-            "Monster physically moved to: " + currentDeck
-        );
+        currentState = MonsterState.Patrol;
+        searchTimer = 0f;
+        travelTimer = 0f;
+        searchPointWaitTimer = 0f;
+
+        reachedSearchLocation = false;
+        waitingAtSearchPoint = false;
+
+        lastKnownPlayerPosition = Vector3.zero;
 
         GoToCurrentPatrolPoint();
     }
@@ -207,8 +236,7 @@ public class MonsterBehaviour : MonoBehaviour
 
                 currentPatrolPoint++;
 
-                if (currentPatrolPoint >=
-                    patrolPoints.Length)
+                if (currentPatrolPoint >= patrolPoints.Length)
                 {
                     currentPatrolPoint = 0;
                 }
@@ -242,10 +270,10 @@ public class MonsterBehaviour : MonoBehaviour
         if (player == null)
             return;
 
-        // Never chase someone on a different deck.
         if (!IsPlayerOnCurrentDeck())
         {
             canSeePlayer = false;
+            currentState = MonsterState.Patrol;
             GoToCurrentPatrolPoint();
             return;
         }
@@ -254,11 +282,156 @@ public class MonsterBehaviour : MonoBehaviour
         agent.SetDestination(player.position);
     }
 
+    void StartSearching()
+    {
+        currentState = MonsterState.Search;
+
+        searchTimer = searchDuration;
+        travelTimer = 0f;
+        searchPointWaitTimer = 0f;
+
+        reachedSearchLocation = false;
+        waitingAtSearchPoint = false;
+
+        agent.speed = searchSpeed;
+        agent.SetDestination(lastKnownPlayerPosition);
+    }
+
+    void SearchForPlayer()
+    {
+        agent.speed = searchSpeed;
+
+        // Count down the total search time.
+        searchTimer -= Time.deltaTime;
+
+        if (searchTimer <= 0f)
+        {
+            EndSearch();
+            return;
+        }
+
+        // First investigate the last known position.
+        if (!reachedSearchLocation)
+        {
+            travelTimer += Time.deltaTime;
+
+            if (agent.pathPending)
+                return;
+
+            if (agent.pathStatus ==
+                NavMeshPathStatus.PathInvalid ||
+                agent.pathStatus ==
+                NavMeshPathStatus.PathPartial ||
+                agent.remainingDistance <=
+                agent.stoppingDistance ||
+                travelTimer >= maxTravelTime)
+            {
+                reachedSearchLocation = true;
+                travelTimer = 0f;
+
+                PickSearchPoint();
+            }
+
+            return;
+        }
+
+        // Search nearby rooms and hallways.
+        if (agent.pathPending)
+            return;
+
+        if (!waitingAtSearchPoint)
+        {
+            travelTimer += Time.deltaTime;
+
+            if (!agent.hasPath ||
+                agent.remainingDistance <=
+                agent.stoppingDistance ||
+                travelTimer >= maxTravelTime)
+            {
+                waitingAtSearchPoint = true;
+                searchPointWaitTimer = 0f;
+
+                agent.ResetPath();
+            }
+        }
+        else
+        {
+            searchPointWaitTimer += Time.deltaTime;
+
+            if (searchPointWaitTimer >=
+                searchPointWaitTime)
+            {
+                PickSearchPoint();
+            }
+        }
+    }
+
+    void PickSearchPoint()
+    {
+        waitingAtSearchPoint = false;
+        travelTimer = 0f;
+        searchPointWaitTimer = 0f;
+
+        for (int i = 0; i < 10; i++)
+        {
+            Vector3 randomDirection =
+                Random.insideUnitCircle * searchRadius;
+
+            Vector3 randomPoint =
+                lastKnownPlayerPosition +
+                new Vector3(
+                    randomDirection.x,
+                    0f,
+                    randomDirection.y
+                );
+
+            NavMeshHit hit;
+
+            if (NavMesh.SamplePosition(
+                randomPoint,
+                out hit,
+                2f,
+                NavMesh.AllAreas))
+            {
+                NavMeshPath path = new NavMeshPath();
+
+                if (agent.CalculatePath(
+                    hit.position,
+                    path) &&
+                    path.status ==
+                    NavMeshPathStatus.PathComplete)
+                {
+                    agent.SetDestination(hit.position);
+                    return;
+                }
+            }
+        }
+
+        // Try again after a short pause.
+        waitingAtSearchPoint = true;
+    }
+
+    void EndSearch()
+    {
+        currentState = MonsterState.Patrol;
+
+        searchTimer = 0f;
+        travelTimer = 0f;
+        searchPointWaitTimer = 0f;
+
+        reachedSearchLocation = false;
+        waitingAtSearchPoint = false;
+
+        waitTimer = 0f;
+
+        agent.ResetPath();
+        GoToCurrentPatrolPoint();
+    }
+
     void CheckLineOfSight()
     {
         canSeePlayer = false;
 
-        // Only detect a player on the assigned deck.
         if (!IsPlayerOnCurrentDeck())
             return;
 
@@ -316,6 +489,7 @@ public class MonsterBehaviour : MonoBehaviour
             transform.position + Vector3.up * eyeHeight;
 
         Gizmos.color = Color.yellow;
+
         Gizmos.DrawWireSphere(
             eyePosition,
             sightDistance
