@@ -82,7 +82,7 @@ public class MonsterBehaviour : MonoBehaviour
     // ------------------------------------
 
     void Awake()
-{
+    {
         agent = GetComponent<NavMeshAgent>();
     }
 
@@ -98,11 +98,11 @@ public class MonsterBehaviour : MonoBehaviour
     }
 
     void Update()
-{
+    {
         SyncWithDeckManager();
 
         if (!monsterActive)
-        return;
+            return;
 
         if (player == null)
         {
@@ -114,11 +114,11 @@ public class MonsterBehaviour : MonoBehaviour
 
         // Patrol even when the player is missing.
         if (player != null)
-    {
+        {
             CheckLineOfSight();
 
             if (canSeePlayer)
-    {
+            {
                 lastKnownPlayerPosition =
                     player.position;
 
@@ -127,8 +127,8 @@ public class MonsterBehaviour : MonoBehaviour
                     currentState = MonsterState.Chase;
 
                     agent.ResetPath();
-}
-    }
+                }
+            }
             else if (currentState == MonsterState.Chase)
             {
                 StartSearching();
