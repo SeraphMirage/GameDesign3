@@ -31,7 +31,7 @@ public class TempControlBehaviour : MonoBehaviour
     {
         if (isRepaired)
         {
-            temperatureText.text = "-18°C";
+            temperatureText.text = "2°C";
             statusText.text = "SYSTEM ONLINE";
 
             if (indicatorLight != null)

@@ -1,7 +1,6 @@
 
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 [System.Serializable]
@@ -45,6 +44,11 @@ public class MonsterBehaviour : MonoBehaviour
     [Header("Spawn Settings")]
     public float navMeshSearchRadius = 2f;
 
+    [Header("Search Behaviour")]
+    public float searchSpeed = 3f;
+    public float searchDuration = 8f;
+    public float searchRadius = 5f;
+
     private NavMeshAgent agent;
 
     private Transform[] patrolPoints;
@@ -55,8 +59,30 @@ public class MonsterBehaviour : MonoBehaviour
     private bool monsterActive;
     private bool lastDeckMatch;
 
-    void Awake()
+    // ------------------------------------
+    // MONSTER STATES
+    // ------------------------------------
+
+    private enum MonsterState
     {
+        Patrol,
+        Chase,
+        Search
+    }
+
+    private MonsterState currentState =
+        MonsterState.Patrol;
+
+    private Vector3 lastKnownPlayerPosition;
+    private float searchTimer;
+    private bool searchingLastKnownPosition;
+
+    // ------------------------------------
+    // START AND UPDATE
+    // ------------------------------------
+
+    void Awake()
+{
         agent = GetComponent<NavMeshAgent>();
     }
 
@@ -64,37 +90,76 @@ public class MonsterBehaviour : MonoBehaviour
     {
         FindPlayer();
 
-        // Start with the monster hidden until
-        // the deck manager confirms its location.
+        // Hide monster until the deck manager
+        // confirms which deck it belongs to.
         SetMonsterActive(false);
 
         SyncWithDeckManager();
     }
 
     void Update()
-    {
+{
         SyncWithDeckManager();
 
         if (!monsterActive)
-            return;
+        return;
 
         if (player == null)
         {
             FindPlayer();
-
-            if (player == null)
-                return;
         }
 
         if (!agent.isOnNavMesh)
             return;
 
-        CheckLineOfSight();
+        // Patrol even when the player is missing.
+        if (player != null)
+    {
+            CheckLineOfSight();
 
-        if (canSeePlayer)
-            ChasePlayer();
+            if (canSeePlayer)
+    {
+                lastKnownPlayerPosition =
+                    player.position;
+
+                if (currentState != MonsterState.Chase)
+                {
+                    currentState = MonsterState.Chase;
+
+                    agent.ResetPath();
+}
+    }
+            else if (currentState == MonsterState.Chase)
+            {
+                StartSearching();
+            }
+        }
         else
-            Patrol();
+        {
+            canSeePlayer = false;
+
+            if (currentState == MonsterState.Chase)
+            {
+                currentState = MonsterState.Patrol;
+                GoToCurrentPatrolPoint();
+            }
+        }
+
+        // Perform the current monster behaviour.
+        switch (currentState)
+        {
+            case MonsterState.Patrol:
+                Patrol();
+                break;
+
+            case MonsterState.Chase:
+                ChasePlayer();
+                break;
+
+            case MonsterState.Search:
+                SearchForPlayer();
+                break;
+        }
     }
 
     // ------------------------------------
@@ -110,7 +175,9 @@ public class MonsterBehaviour : MonoBehaviour
             GameObject.FindGameObjectWithTag("Player");
 
         if (playerObject != null)
+        {
             player = playerObject.transform;
+        }
     }
 
     // ------------------------------------
@@ -135,7 +202,9 @@ public class MonsterBehaviour : MonoBehaviour
             SetMonsterActive(false);
         }
 
-        lastDeckMatch = deckMatches;
+        // Only mark the deck as matched when
+        // the monster actually spawned.
+        lastDeckMatch = deckMatches && monsterActive;
     }
 
     // ------------------------------------
@@ -161,8 +230,13 @@ public class MonsterBehaviour : MonoBehaviour
             return;
         }
 
+        if (agent == null)
+            return;
+
         // Collect valid spawn locations.
-        List<int> validIndices = new List<int>();
+        List<int> validIndices =
+            new List<int>();
+
         List<Vector3> validPositions =
             new List<Vector3>();
 
@@ -177,9 +251,11 @@ public class MonsterBehaviour : MonoBehaviour
                 location.spawnPoint == null)
                 continue;
 
+            NavMeshHit hit;
+
             if (NavMesh.SamplePosition(
                 location.spawnPoint.position,
-                out NavMeshHit hit,
+                out hit,
                 navMeshSearchRadius,
                 agent.areaMask))
             {
@@ -197,7 +273,7 @@ public class MonsterBehaviour : MonoBehaviour
             return;
         }
 
-        // Pick a random valid location.
+        // Choose a random spawn location.
         int choice =
             DeckStatusManager.Instance
             .GetRandomSpawnIndex(
@@ -205,7 +281,12 @@ public class MonsterBehaviour : MonoBehaviour
                 validIndices.Count
             );
 
-        int selectedIndex = validIndices[choice];
+        if (choice < 0 ||
+            choice >= validIndices.Count)
+            return;
+
+        int selectedIndex =
+            validIndices[choice];
 
         MonsterSpawnLocation selected =
             spawnLocations[selectedIndex];
@@ -213,7 +294,7 @@ public class MonsterBehaviour : MonoBehaviour
         Vector3 spawnPosition =
             validPositions[choice];
 
-        // Enable the NavMeshAgent before warping.
+        // Warp the monster onto the NavMesh.
         agent.enabled = true;
 
         if (!agent.Warp(spawnPosition))
@@ -227,11 +308,18 @@ public class MonsterBehaviour : MonoBehaviour
 
         agent.ResetPath();
 
+        // Assign the selected patrol route.
         patrolPoints = selected.patrolPoints;
 
         currentPatrolPoint = 0;
         waitTimer = 0f;
+
         canSeePlayer = false;
+
+        currentState = MonsterState.Patrol;
+
+        searchTimer = 0f;
+        searchingLastKnownPosition = false;
 
         SetMonsterActive(true);
 
@@ -245,6 +333,14 @@ public class MonsterBehaviour : MonoBehaviour
         );
     }
 
+    // Manually respawn the monster on
+    // the currently assigned deck.
+    public void RespawnMonster()
+    {
+        SetMonsterActive(false);
+        SpawnMonster();
+    }
+
     // ------------------------------------
     // VISIBILITY AND MOVEMENT
     // ------------------------------------
@@ -253,7 +349,9 @@ public class MonsterBehaviour : MonoBehaviour
     {
         monsterActive = active;
 
-        if (agent != null)
+        if (agent != null &&
+            agent.enabled &&
+            agent.isOnNavMesh)
         {
             if (active)
             {
@@ -261,17 +359,14 @@ public class MonsterBehaviour : MonoBehaviour
             }
             else
             {
-                if (agent.isOnNavMesh)
-                {
-                    agent.ResetPath();
-                    agent.isStopped = true;
-                }
+                agent.ResetPath();
+                agent.isStopped = true;
             }
         }
 
         // Hide or show monster renderers.
         Renderer[] renderers =
-            GetComponentsInChildren<Renderer>();
+            GetComponentsInChildren<Renderer>(true);
 
         foreach (Renderer rend in renderers)
         {
@@ -281,7 +376,7 @@ public class MonsterBehaviour : MonoBehaviour
         // Disable physical monster colliders
         // while it is on the other deck.
         Collider[] colliders =
-            GetComponentsInChildren<Collider>();
+            GetComponentsInChildren<Collider>(true);
 
         foreach (Collider col in colliders)
         {
@@ -311,7 +406,7 @@ public class MonsterBehaviour : MonoBehaviour
         }
 
         if (agent.remainingDistance <=
-            agent.stoppingDistance)
+            agent.stoppingDistance + 0.1f)
         {
             waitTimer += Time.deltaTime;
 
@@ -319,13 +414,9 @@ public class MonsterBehaviour : MonoBehaviour
             {
                 waitTimer = 0f;
 
-                currentPatrolPoint++;
-
-                if (currentPatrolPoint >=
-                    patrolPoints.Length)
-                {
-                    currentPatrolPoint = 0;
-                }
+                currentPatrolPoint =
+                    (currentPatrolPoint + 1) %
+                    patrolPoints.Length;
 
                 GoToCurrentPatrolPoint();
             }
@@ -345,16 +436,35 @@ public class MonsterBehaviour : MonoBehaviour
             patrolPoints.Length == 0)
             return;
 
-        Transform point =
-            patrolPoints[currentPatrolPoint];
+        // Skip empty patrol points.
+        for (int count = 0;
+             count < patrolPoints.Length;
+             count++)
+        {
+            Transform point =
+                patrolPoints[currentPatrolPoint];
 
-        if (point == null)
-            return;
+            if (point != null)
+            {
+                agent.speed = patrolSpeed;
+                agent.isStopped = false;
 
-        agent.speed = patrolSpeed;
-        agent.isStopped = false;
+                agent.SetDestination(
+                    point.position
+                );
 
-        agent.SetDestination(point.position);
+                return;
+            }
+
+            currentPatrolPoint =
+                (currentPatrolPoint + 1) %
+                patrolPoints.Length;
+        }
+
+        Debug.LogWarning(
+            "All patrol points are empty for " +
+            thisDeck, this
+        );
     }
 
     // ------------------------------------
@@ -363,13 +473,100 @@ public class MonsterBehaviour : MonoBehaviour
 
     void ChasePlayer()
     {
-        if (player == null)
+        if (player == null ||
+            !agent.isOnNavMesh)
             return;
 
         agent.speed = chaseSpeed;
         agent.isStopped = false;
 
-        agent.SetDestination(player.position);
+        agent.SetDestination(
+            player.position
+        );
+    }
+
+    // ------------------------------------
+    // SEARCH SYSTEM
+    // ------------------------------------
+
+    void StartSearching()
+    {
+        if (!agent.isOnNavMesh)
+            return;
+
+        currentState = MonsterState.Search;
+
+        searchTimer = 0f;
+
+        searchingLastKnownPosition = true;
+
+        agent.ResetPath();
+
+        agent.speed = searchSpeed;
+        agent.isStopped = false;
+
+        agent.SetDestination(
+            lastKnownPlayerPosition
+        );
+    }
+
+    void SearchForPlayer()
+    {
+        if (!agent.isOnNavMesh)
+            return;
+
+        searchTimer += Time.deltaTime;
+
+        // Stop searching after the timer ends.
+        if (searchTimer >= searchDuration)
+        {
+            currentState = MonsterState.Patrol;
+
+            waitTimer = 0f;
+
+            GoToCurrentPatrolPoint();
+
+            return;
+        }
+
+        agent.speed = searchSpeed;
+        agent.isStopped = false;
+
+        if (agent.pathPending)
+            return;
+
+        // Search around the player's
+        // last known location.
+        if (!agent.hasPath ||
+            agent.remainingDistance <=
+            agent.stoppingDistance + 0.3f ||
+            agent.pathStatus ==
+            NavMeshPathStatus.PathInvalid)
+        {
+            if (searchingLastKnownPosition)
+            {
+                searchingLastKnownPosition = false;
+            }
+
+            Vector3 randomOffset =
+                Random.insideUnitSphere *
+                Mathf.Max(0f, searchRadius);
+
+            randomOffset.y = 0f;
+
+            NavMeshHit hit;
+
+            if (NavMesh.SamplePosition(
+                lastKnownPlayerPosition + randomOffset,
+                out hit,
+                navMeshSearchRadius,
+                agent.areaMask))
+            {
+                agent.SetDestination(
+                    hit.position
+                );
+            }
+        }
     }
 
     // ------------------------------------
@@ -397,7 +594,8 @@ public class MonsterBehaviour : MonoBehaviour
         float distanceToPlayer =
             directionToPlayer.magnitude;
 
-        if (distanceToPlayer > sightDistance)
+        if (distanceToPlayer > sightDistance ||
+            distanceToPlayer < 0.001f)
             return;
 
         Vector3 flatDirection = new Vector3(

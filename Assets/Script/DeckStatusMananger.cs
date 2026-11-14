@@ -58,9 +58,14 @@ public class DeckStatusManager : MonoBehaviour
         }
     }
 
+    // ------------------------------------
+    // DECK SWITCHING
+    // ------------------------------------
+
     public void MoveMonsterToAnotherDeck()
     {
-        List<string> choices = new List<string>();
+        List<string> choices =
+            new List<string>();
 
         foreach (string deck in availableDecks)
         {
@@ -80,9 +85,15 @@ public class DeckStatusManager : MonoBehaviour
 
         Debug.Log(
             "Monster moved from " +
-            oldDeck + " to " + monsterDeck
+            oldDeck +
+            " to " +
+            monsterDeck
         );
     }
+
+    // ------------------------------------
+    // MONSTER LOCATION
+    // ------------------------------------
 
     public bool IsMonsterOnDeck(string deckName)
     {
@@ -93,6 +104,10 @@ public class DeckStatusManager : MonoBehaviour
     {
         return monsterDeck;
     }
+
+    // ------------------------------------
+    // RANDOM SPAWN TRACKING
+    // ------------------------------------
 
     public int GetRandomSpawnIndex(
         string deckName,
@@ -113,6 +128,8 @@ public class DeckStatusManager : MonoBehaviour
             spawnCount
         );
 
+        // Avoid repeating the previous spawn
+        // when multiple locations exist.
         if (spawnCount > 1 &&
             randomIndex == lastIndex)
         {
@@ -127,6 +144,10 @@ public class DeckStatusManager : MonoBehaviour
 
         return randomIndex;
     }
+
+    // ------------------------------------
+    // DECK STATUS
+    // ------------------------------------
 
     public bool IsDeckWorking(string deckName)
     {
