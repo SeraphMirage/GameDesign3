@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -6,7 +7,7 @@ public class DeckStatusManager : MonoBehaviour
     public static DeckStatusManager Instance;
 
     [Header("Monster Tracking")]
-    public string monsterDeck = "Bottom Deck";
+    public string monsterDeck = "Top Deck";
     public float deckChangeInterval = 25f;
 
     private float timer;
@@ -19,6 +20,10 @@ public class DeckStatusManager : MonoBehaviour
         "Top Deck",
         "Bottom Deck"
     };
+
+    // Remember spawn choices between scene loads.
+    private Dictionary<string, int> lastSpawnIndices =
+        new Dictionary<string, int>();
 
     void Awake()
     {
@@ -53,10 +58,9 @@ public class DeckStatusManager : MonoBehaviour
         }
     }
 
-    void MoveMonsterToAnotherDeck()
+    public void MoveMonsterToAnotherDeck()
     {
-        List<string> choices =
-            new List<string>();
+        List<string> choices = new List<string>();
 
         foreach (string deck in availableDecks)
         {
@@ -76,9 +80,7 @@ public class DeckStatusManager : MonoBehaviour
 
         Debug.Log(
             "Monster moved from " +
-            oldDeck +
-            " to " +
-            monsterDeck
+            oldDeck + " to " + monsterDeck
         );
     }
 
@@ -90,6 +92,40 @@ public class DeckStatusManager : MonoBehaviour
     public string GetMonsterDeck()
     {
         return monsterDeck;
+    }
+
+    public int GetRandomSpawnIndex(
+        string deckName,
+        int spawnCount)
+    {
+        if (spawnCount <= 0)
+            return -1;
+
+        int lastIndex = -1;
+
+        lastSpawnIndices.TryGetValue(
+            deckName,
+            out lastIndex
+        );
+
+        int randomIndex = Random.Range(
+            0,
+            spawnCount
+        );
+
+        if (spawnCount > 1 &&
+            randomIndex == lastIndex)
+        {
+            randomIndex =
+                (randomIndex + Random.Range(
+                    1,
+                    spawnCount
+                )) % spawnCount;
+        }
+
+        lastSpawnIndices[deckName] = randomIndex;
+
+        return randomIndex;
     }
 
     public bool IsDeckWorking(string deckName)
