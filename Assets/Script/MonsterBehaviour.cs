@@ -388,10 +388,14 @@ public class MonsterBehaviour : MonoBehaviour
     // PATROL SYSTEM
     // ------------------------------------
 
+
     void Patrol()
     {
         if (patrolPoints == null ||
             patrolPoints.Length == 0)
+            return;
+
+        if (!agent.isOnNavMesh)
             return;
 
         agent.speed = patrolSpeed;
@@ -399,21 +403,20 @@ public class MonsterBehaviour : MonoBehaviour
         if (agent.pathPending)
             return;
 
-        if (!agent.hasPath)
-        {
-            GoToCurrentPatrolPoint();
-            return;
-        }
-
-        if (agent.remainingDistance <=
-            agent.stoppingDistance + 0.1f)
+        // Check whether the monster has reached
+        // its current patrol destination.
+        if (!agent.hasPath ||
+            agent.remainingDistance <=
+            agent.stoppingDistance + 0.2f)
         {
             waitTimer += Time.deltaTime;
 
+            // Wait at the patrol point.
             if (waitTimer >= patrolWaitTime)
             {
                 waitTimer = 0f;
 
+                // Move to the next patrol point.
                 currentPatrolPoint =
                     (currentPatrolPoint + 1) %
                     patrolPoints.Length;
@@ -426,6 +429,7 @@ public class MonsterBehaviour : MonoBehaviour
             waitTimer = 0f;
         }
     }
+
 
     void GoToCurrentPatrolPoint()
     {

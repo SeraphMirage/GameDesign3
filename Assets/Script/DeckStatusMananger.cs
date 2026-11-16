@@ -8,7 +8,7 @@ public class DeckStatusManager : MonoBehaviour
 
     [Header("Monster Tracking")]
     public string monsterDeck = "Top Deck";
-    public float deckChangeInterval = 25f;
+    public float deckChangeInterval = 60f;
 
     private float timer;
 

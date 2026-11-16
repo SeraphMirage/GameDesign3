@@ -2163,7 +2163,7 @@ Transform:
   m_GameObject: {fileID: 184423843}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.81, y: 2, z: -19.96826}
+  m_LocalPosition: {x: 5.81, y: 2, z: -21.08}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9186,7 +9186,7 @@ Transform:
   m_GameObject: {fileID: 727956430}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.58, y: 2, z: -19.14}
+  m_LocalPosition: {x: -0.58, y: 2, z: -20.76}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -11082,6 +11082,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2029605936}
     - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: thisDeck
+      value: Bottom Deck
+      objectReference: {fileID: 0}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
       propertyPath: fieldOfView
       value: 110
       objectReference: {fileID: 0}
@@ -11102,6 +11106,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1703331197}
     - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: spawnLocations.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
       propertyPath: bottomDeckPatrolPoints.Array.size
       value: 4
       objectReference: {fileID: 0}
@@ -11119,6 +11127,30 @@ PrefabInstance:
       objectReference: {fileID: 290986006}
     - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
       propertyPath: 'bottomDeckPatrolPoints.Array.data[3]'
+      value: 
+      objectReference: {fileID: 2132388408}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: spawnLocations.Array.data[0].spawnPoint
+      value: 
+      objectReference: {fileID: 1703331197}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: spawnLocations.Array.data[0].patrolPoints.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: 'spawnLocations.Array.data[0].patrolPoints.Array.data[0]'
+      value: 
+      objectReference: {fileID: 184423844}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: 'spawnLocations.Array.data[0].patrolPoints.Array.data[1]'
+      value: 
+      objectReference: {fileID: 727956431}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: 'spawnLocations.Array.data[0].patrolPoints.Array.data[2]'
+      value: 
+      objectReference: {fileID: 290986006}
+    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
+      propertyPath: 'spawnLocations.Array.data[0].patrolPoints.Array.data[3]'
       value: 
       objectReference: {fileID: 2132388408}
     - target: {fileID: 6961570093281077780, guid: 86337b21ab0f8084e877196313555618, type: 3}
