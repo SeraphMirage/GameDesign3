@@ -56,6 +56,16 @@ public class ButtonPushBehaviour : MonoBehaviour
                 valve.RotateClockwise();
                 return;
             }
+
+            // HINGE INTERACTION
+            HingeBehaviour hinge =
+                hit.collider.GetComponentInParent<HingeBehaviour>();
+
+            if (hinge != null)
+            {
+                hinge.RotateHinge();
+                return;
+            }
         }
     }
 }
