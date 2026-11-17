@@ -66,6 +66,16 @@ public class ButtonPushBehaviour : MonoBehaviour
                 hinge.RotateHinge();
                 return;
             }
+
+            // WIRE REPAIR
+            WireRepairBehaviour wire =
+                hit.collider.GetComponentInParent<WireRepairBehaviour>();
+
+            if (wire != null)
+            {
+                wire.RepairWire();
+                return;
+            }
         }
     }
 }
