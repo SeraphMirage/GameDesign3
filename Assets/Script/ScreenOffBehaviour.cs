@@ -3,11 +3,16 @@ using TMPro;
 
 public class ScreedOffBehaviour : MonoBehaviour
 {
+    [Header("Screen Materials")]
     public Renderer[] targetObjects;
     public Material ScreenOn;
     public Material ScreenOff;
 
+    [Header("Screen Text")]
     public TMP_Text[] targetTexts;
+
+    [Header("UI Objects To Hide")]
+    public GameObject[] targetUIObjects;
 
     private bool hasTriggered = false;
     private bool powerRestored = false;
@@ -30,6 +35,12 @@ public class ScreedOffBehaviour : MonoBehaviour
             if (text != null)
                 text.gameObject.SetActive(true);
         }
+
+        foreach (GameObject obj in targetUIObjects)
+        {
+            if (obj != null)
+                obj.SetActive(true);
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -49,6 +60,12 @@ public class ScreedOffBehaviour : MonoBehaviour
             if (text != null)
                 text.gameObject.SetActive(false);
         }
+
+        foreach (GameObject obj in targetUIObjects)
+        {
+            if (obj != null)
+                obj.SetActive(false);
+        }
     }
 
     public void TurnScreensOn()
@@ -65,6 +82,12 @@ public class ScreedOffBehaviour : MonoBehaviour
         {
             if (text != null)
                 text.gameObject.SetActive(true);
+        }
+
+        foreach (GameObject obj in targetUIObjects)
+        {
+            if (obj != null)
+                obj.SetActive(true);
         }
     }
 }
