@@ -21,11 +21,10 @@ public class SonarBehaviour : MonoBehaviour
     {
         isPowered = false;
 
-        if (sonarDisplay != null)
-            sonarDisplay.SetActive(false);
-
         if (sonarContact != null)
             sonarContact.SetActive(false);
+
+        RestoreSonarPower();
     }
 
     private void Update()
