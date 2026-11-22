@@ -584,6 +584,20 @@ public class MonsterBehaviour : MonoBehaviour
         if (player == null)
             return;
 
+    // -----------------------------------
+    // HIDING SPOT DETECTION
+    // -----------------------------------
+
+        if (HidingSpotBehaviour.IsPlayerHidden(player))
+        {
+            if(!HidingSpotBehaviour
+                .CanMonsterSeePlayer(player))
+            {
+                canSeePlayer = false;
+                return;
+            }
+        }
+
         Vector3 eyePosition =
             transform.position +
             Vector3.up * eyeHeight;

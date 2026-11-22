@@ -1,39 +1,69 @@
+
 using UnityEngine;
 
 public class PlayerMovementBehaviour : MonoBehaviour
 {
+    [Header("Movement")]
     public float moveSpeed = 5f;
     public float rotationSpeed = 10f;
+
+    [Header("Camera")]
+    public Transform cameraTransform;
 
     private Rigidbody rb;
     private Vector3 moveInput;
 
-    public Transform cameraTransform;
+    // ------------------------------------
+    // START
+    // ------------------------------------
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
 
-        if (cameraTransform == null && Camera.main != null)
+        if (cameraTransform == null &&
+            Camera.main != null)
         {
             cameraTransform = Camera.main.transform;
         }
     }
 
+    // ------------------------------------
+    // UPDATE
+    // ------------------------------------
+
     void Update()
     {
-        float moveX = Input.GetAxisRaw("Horizontal");
-        float moveZ = Input.GetAxisRaw("Vertical");
+        float moveX =
+            Input.GetAxisRaw("Horizontal");
 
-        moveInput = new Vector3(moveX, 0f, moveZ).normalized;
+        float moveZ =
+            Input.GetAxisRaw("Vertical");
+
+        moveInput = new Vector3(
+            moveX,
+            0f,
+            moveZ
+        ).normalized;
     }
+
+    // ------------------------------------
+    // FIXED UPDATE
+    // ------------------------------------
 
     void FixedUpdate()
     {
-        if (cameraTransform == null) return;
+        if (cameraTransform == null)
+            return;
 
-        Vector3 forward = cameraTransform.forward;
-        Vector3 right = cameraTransform.right;
+        if (rb == null)
+            return;
+
+        Vector3 forward =
+            cameraTransform.forward;
+
+        Vector3 right =
+            cameraTransform.right;
 
         forward.y = 0f;
         right.y = 0f;
@@ -42,35 +72,63 @@ public class PlayerMovementBehaviour : MonoBehaviour
         right.Normalize();
 
         Vector3 moveDirection =
-            (forward * moveInput.z + right * moveInput.x).normalized;
+            (forward * moveInput.z +
+             right * moveInput.x).normalized;
 
-        Vector3 velocity = rb.linearVelocity;
+        Vector3 velocity =
+            rb.linearVelocity;
 
         if (moveInput.sqrMagnitude > 0.01f)
         {
-            velocity.x = moveDirection.x * moveSpeed;
-            velocity.z = moveDirection.z * moveSpeed;
+            velocity.x =
+                moveDirection.x * moveSpeed;
+
+            velocity.z =
+                moveDirection.z * moveSpeed;
 
             rb.linearVelocity = velocity;
 
             Quaternion targetRotation =
-                Quaternion.LookRotation(moveDirection);
+                Quaternion.LookRotation(
+                    moveDirection
+                );
 
-            Quaternion newRotation = Quaternion.Slerp(
-                rb.rotation,
-                targetRotation,
-                rotationSpeed * Time.fixedDeltaTime
-            );
+            Quaternion newRotation =
+                Quaternion.Slerp(
+                    rb.rotation,
+                    targetRotation,
+                    rotationSpeed *
+                    Time.fixedDeltaTime
+                );
 
             rb.MoveRotation(newRotation);
         }
         else
         {
-            // Instantly stop horizontal movement
+            // Instantly stop horizontal movement.
             velocity.x = 0f;
             velocity.z = 0f;
 
             rb.linearVelocity = velocity;
         }
     }
+
+    // ------------------------------------
+    // STOP MOVEMENT FOR HIDING
+    // ------------------------------------
+
+    public void StopMovement()
+    {
+        moveInput = Vector3.zero;
+
+        if (rb == null)
+            rb = GetComponent<Rigidbody>();
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+    }
+
 }
