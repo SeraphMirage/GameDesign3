@@ -8,7 +8,10 @@ public class DeckStatusManager : MonoBehaviour
 
     [Header("Monster Tracking")]
     public string monsterDeck = "Top Deck";
-    public float deckChangeInterval = 60f;
+    public float deckChangeInterval = 25f;
+
+    [Header("Deck Change Status")]
+    public bool deckChangePending = false;
 
     private float timer;
 
@@ -21,9 +24,18 @@ public class DeckStatusManager : MonoBehaviour
         "Bottom Deck"
     };
 
-    // Remember spawn choices between scene loads.
+    // Remember previous spawn locations.
     private Dictionary<string, int> lastSpawnIndices =
         new Dictionary<string, int>();
+
+    // Track monster instances in loaded scenes.
+    private Dictionary<string, MonsterBehaviour>
+        loadedMonsters =
+        new Dictionary<string, MonsterBehaviour>();
+
+    // ------------------------------------
+    // AWAKE
+    // ------------------------------------
 
     void Awake()
     {
@@ -34,11 +46,16 @@ public class DeckStatusManager : MonoBehaviour
         }
 
         Instance = this;
+
         DontDestroyOnLoad(gameObject);
 
         deckStatus["Top Deck"] = true;
         deckStatus["Bottom Deck"] = true;
     }
+
+    // ------------------------------------
+    // START
+    // ------------------------------------
 
     void Start()
     {
@@ -47,23 +64,117 @@ public class DeckStatusManager : MonoBehaviour
         );
     }
 
+    // ------------------------------------
+    // UPDATE
+    // ------------------------------------
+
     void Update()
     {
+        // Don't restart the countdown while
+        // a deck change is already pending.
+        if (deckChangePending)
+        {
+            // If the monster's deck scene is
+            // not loaded, switch offscreen.
+            if (!HasLoadedMonsterOnCurrentDeck())
+            {
+                CompleteDeckChange();
+            }
+
+            return;
+        }
+
         timer += Time.deltaTime;
 
         if (timer >= deckChangeInterval)
         {
-            timer = 0f;
-            MoveMonsterToAnotherDeck();
+            RequestDeckChange();
         }
     }
 
     // ------------------------------------
-    // DECK SWITCHING
+    // MONSTER REGISTRATION
     // ------------------------------------
 
-    public void MoveMonsterToAnotherDeck()
+    public void RegisterMonster(
+        string deckName,
+        MonsterBehaviour monster)
     {
+        if (monster == null)
+            return;
+
+        loadedMonsters[deckName] = monster;
+    }
+
+    public void UnregisterMonster(
+        string deckName,
+        MonsterBehaviour monster)
+    {
+        if (loadedMonsters.TryGetValue(
+            deckName,
+            out MonsterBehaviour registered))
+        {
+            if (registered == monster)
+            {
+                loadedMonsters.Remove(deckName);
+            }
+        }
+    }
+
+    bool HasLoadedMonsterOnCurrentDeck()
+    {
+        if (loadedMonsters.TryGetValue(
+            monsterDeck,
+            out MonsterBehaviour monster))
+        {
+            return monster != null &&
+                   monster.isActiveAndEnabled;
+        }
+
+        return false;
+    }
+
+    // ------------------------------------
+    // REQUEST DECK CHANGE
+    // ------------------------------------
+
+    public void RequestDeckChange()
+    {
+        if (deckChangePending)
+            return;
+
+        deckChangePending = true;
+
+        Debug.Log(
+            "Deck change pending. " +
+            "Monster will finish its activity."
+        );
+
+        // If the monster is on an unloaded
+        // deck, there's no visible patrol
+        // or chase to interrupt.
+        if (!HasLoadedMonsterOnCurrentDeck())
+        {
+            CompleteDeckChange();
+        }
+    }
+
+    public bool IsDeckChangePending()
+    {
+        return deckChangePending;
+    }
+
+    // ------------------------------------
+    // COMPLETE DECK CHANGE
+    // ------------------------------------
+
+    public void CompleteDeckChange()
+    {
+        if (!deckChangePending)
+            return;
+
+        string oldDeck = monsterDeck;
+
         List<string> choices =
             new List<string>();
 
@@ -76,19 +187,29 @@ public class DeckStatusManager : MonoBehaviour
         }
 
         if (choices.Count == 0)
+        {
+            deckChangePending = false;
+            timer = 0f;
             return;
-
-        string oldDeck = monsterDeck;
+        }
 
         monsterDeck =
             choices[Random.Range(0, choices.Count)];
 
+        deckChangePending = false;
+        timer = 0f;
+
         Debug.Log(
-            "Monster moved from " +
-            oldDeck +
-            " to " +
-            monsterDeck
+            "Monster finished activity and moved " +
+            "from " + oldDeck +
+            " to " + monsterDeck
         );
+    }
+
+    // Keep compatibility with other scripts.
+    public void MoveMonsterToAnotherDeck()
+    {
+        RequestDeckChange();
     }
 
     // ------------------------------------
@@ -123,13 +244,10 @@ public class DeckStatusManager : MonoBehaviour
             out lastIndex
         );
 
-        int randomIndex = Random.Range(
-            0,
-            spawnCount
-        );
+        int randomIndex =
+            Random.Range(0, spawnCount);
 
-        // Avoid repeating the previous spawn
-        // when multiple locations exist.
+        // Avoid repeating the last spawn.
         if (spawnCount > 1 &&
             randomIndex == lastIndex)
         {
@@ -140,7 +258,8 @@ public class DeckStatusManager : MonoBehaviour
                 )) % spawnCount;
         }
 
-        lastSpawnIndices[deckName] = randomIndex;
+        lastSpawnIndices[deckName] =
+            randomIndex;
 
         return randomIndex;
     }

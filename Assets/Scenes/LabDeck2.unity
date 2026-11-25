@@ -9651,10 +9651,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2029605936}
     - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
-      propertyPath: spawnLocations.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
       propertyPath: spawnLocations.Array.data[0].spawnPoint
       value: 
       objectReference: {fileID: 1703331197}
@@ -9662,14 +9658,6 @@ PrefabInstance:
       propertyPath: spawnLocations.Array.data[1].spawnPoint
       value: 
       objectReference: {fileID: 574424336}
-    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
-      propertyPath: spawnLocations.Array.data[0].patrolPoints.Array.size
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
-      propertyPath: spawnLocations.Array.data[1].patrolPoints.Array.size
-      value: 4
-      objectReference: {fileID: 0}
     - target: {fileID: 6199537523024930268, guid: 86337b21ab0f8084e877196313555618, type: 3}
       propertyPath: 'spawnLocations.Array.data[0].patrolPoints.Array.data[0]'
       value: 
@@ -13566,6 +13554,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DeckStatusManager
   monsterDeck: Bottom Deck
   deckChangeInterval: 25
+  deckChangePending: 0
 --- !u!4 &1069673103
 Transform:
   m_ObjectHideFlags: 0
@@ -24958,6 +24947,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 853652962}
+    - target: {fileID: 6992545562039216463, guid: 2f1a2d28d9c2e9a43a74d0252d5cf13b, type: 3}
+      propertyPath: m_VersionIndex
+      value: 450
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

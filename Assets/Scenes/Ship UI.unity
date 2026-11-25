@@ -782,6 +782,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DeckStatusManager
   monsterDeck: Bottom Deck
   deckChangeInterval: 25
+  deckChangePending: 0
 --- !u!4 &1195052184
 Transform:
   m_ObjectHideFlags: 0
@@ -1271,6 +1272,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 374038df4adcb2a47b9b8fff29abebdc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShipMapUI
+  topDeckButton: {fileID: 995129797}
+  bottomDeckButton: {fileID: 796543626}
+  currentDeckColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  hoverColor: {r: 0, g: 0, b: 1, a: 1}
+  otherDeckColor: {r: 1, g: 1, b: 1, a: 1}
+  currentPlayerDeck: 
 --- !u!1 &2060322539
 GameObject:
   m_ObjectHideFlags: 0

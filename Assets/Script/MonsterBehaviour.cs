@@ -27,7 +27,7 @@ public class MonsterBehaviour : MonoBehaviour
     public float patrolWaitTime = 1f;
 
     [Header("Scene Assignment")]
-    [Tooltip("Must match Top Deck or Bottom Deck")]
+    [Tooltip("Top Deck or Bottom Deck")]
     public string thisDeck = "Top Deck";
 
     [Header("Random Spawn Locations")]
@@ -49,6 +49,10 @@ public class MonsterBehaviour : MonoBehaviour
     public float searchDuration = 8f;
     public float searchRadius = 5f;
 
+    [Header("Deck Decision")]
+    [Range(0f, 1f)]
+    public float leaveDeckAfterSearchChance = 0.5f;
+
     private NavMeshAgent agent;
 
     private Transform[] patrolPoints;
@@ -57,11 +61,6 @@ public class MonsterBehaviour : MonoBehaviour
 
     private bool canSeePlayer;
     private bool monsterActive;
-    private bool lastDeckMatch;
-
-    // ------------------------------------
-    // MONSTER STATES
-    // ------------------------------------
 
     private enum MonsterState
     {
@@ -78,7 +77,7 @@ public class MonsterBehaviour : MonoBehaviour
     private bool searchingLastKnownPosition;
 
     // ------------------------------------
-    // START AND UPDATE
+    // AWAKE
     // ------------------------------------
 
     void Awake()
@@ -86,16 +85,30 @@ public class MonsterBehaviour : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
     }
 
+    // ------------------------------------
+    // START
+    // ------------------------------------
+
     void Start()
     {
         FindPlayer();
 
-        // Hide monster until the deck manager
-        // confirms which deck it belongs to.
         SetMonsterActive(false);
+
+        if (DeckStatusManager.Instance != null)
+        {
+            DeckStatusManager.Instance.RegisterMonster(
+                thisDeck,
+                this
+            );
+        }
 
         SyncWithDeckManager();
     }
+
+    // ------------------------------------
+    // UPDATE
+    // ------------------------------------
 
     void Update()
     {
@@ -104,15 +117,12 @@ public class MonsterBehaviour : MonoBehaviour
         if (!monsterActive)
             return;
 
-        if (player == null)
-        {
-            FindPlayer();
-        }
-
         if (!agent.isOnNavMesh)
             return;
 
-        // Patrol even when the player is missing.
+        if (player == null)
+            FindPlayer();
+
         if (player != null)
         {
             CheckLineOfSight();
@@ -124,7 +134,8 @@ public class MonsterBehaviour : MonoBehaviour
 
                 if (currentState != MonsterState.Chase)
                 {
-                    currentState = MonsterState.Chase;
+                    currentState =
+                        MonsterState.Chase;
 
                     agent.ResetPath();
                 }
@@ -140,12 +151,13 @@ public class MonsterBehaviour : MonoBehaviour
 
             if (currentState == MonsterState.Chase)
             {
-                currentState = MonsterState.Patrol;
+                currentState =
+                    MonsterState.Patrol;
+
                 GoToCurrentPatrolPoint();
             }
         }
 
-        // Perform the current monster behaviour.
         switch (currentState)
         {
             case MonsterState.Patrol:
@@ -163,7 +175,7 @@ public class MonsterBehaviour : MonoBehaviour
     }
 
     // ------------------------------------
-    // PLAYER
+    // FIND PLAYER
     // ------------------------------------
 
     void FindPlayer()
@@ -193,18 +205,14 @@ public class MonsterBehaviour : MonoBehaviour
             DeckStatusManager.Instance
             .IsMonsterOnDeck(thisDeck);
 
-        if (deckMatches && !lastDeckMatch)
+        if (deckMatches && !monsterActive)
         {
             SpawnMonster();
         }
-        else if (!deckMatches && lastDeckMatch)
+        else if (!deckMatches && monsterActive)
         {
             SetMonsterActive(false);
         }
-
-        // Only mark the deck as matched when
-        // the monster actually spawned.
-        lastDeckMatch = deckMatches && monsterActive;
     }
 
     // ------------------------------------
@@ -222,18 +230,8 @@ public class MonsterBehaviour : MonoBehaviour
 
         if (spawnLocations == null ||
             spawnLocations.Length == 0)
-        {
-            Debug.LogWarning(
-                "No spawn locations assigned on " +
-                thisDeck, this
-            );
-            return;
-        }
-
-        if (agent == null)
             return;
 
-        // Collect valid spawn locations.
         List<int> validIndices =
             new List<int>();
 
@@ -267,13 +265,13 @@ public class MonsterBehaviour : MonoBehaviour
         if (validIndices.Count == 0)
         {
             Debug.LogWarning(
-                "No valid NavMesh spawn points on " +
-                thisDeck, this
+                "No valid NavMesh spawn locations " +
+                "on " + thisDeck,
+                this
             );
             return;
         }
 
-        // Choose a random spawn location.
         int choice =
             DeckStatusManager.Instance
             .GetRandomSpawnIndex(
@@ -294,13 +292,12 @@ public class MonsterBehaviour : MonoBehaviour
         Vector3 spawnPosition =
             validPositions[choice];
 
-        // Warp the monster onto the NavMesh.
         agent.enabled = true;
 
         if (!agent.Warp(spawnPosition))
         {
             Debug.LogWarning(
-                "Monster could not warp to spawn!",
+                "Monster failed to warp.",
                 this
             );
             return;
@@ -308,8 +305,8 @@ public class MonsterBehaviour : MonoBehaviour
 
         agent.ResetPath();
 
-        // Assign the selected patrol route.
-        patrolPoints = selected.patrolPoints;
+        patrolPoints =
+            selected.patrolPoints;
 
         currentPatrolPoint = 0;
         waitTimer = 0f;
@@ -317,7 +314,6 @@ public class MonsterBehaviour : MonoBehaviour
         canSeePlayer = false;
 
         currentState = MonsterState.Patrol;
-
         searchTimer = 0f;
         searchingLastKnownPosition = false;
 
@@ -333,8 +329,6 @@ public class MonsterBehaviour : MonoBehaviour
         );
     }
 
-    // Manually respawn the monster on
-    // the currently assigned deck.
     public void RespawnMonster()
     {
         SetMonsterActive(false);
@@ -342,7 +336,7 @@ public class MonsterBehaviour : MonoBehaviour
     }
 
     // ------------------------------------
-    // VISIBILITY AND MOVEMENT
+    // VISIBILITY
     // ------------------------------------
 
     void SetMonsterActive(bool active)
@@ -364,7 +358,6 @@ public class MonsterBehaviour : MonoBehaviour
             }
         }
 
-        // Hide or show monster renderers.
         Renderer[] renderers =
             GetComponentsInChildren<Renderer>(true);
 
@@ -373,8 +366,6 @@ public class MonsterBehaviour : MonoBehaviour
             rend.enabled = active;
         }
 
-        // Disable physical monster colliders
-        // while it is on the other deck.
         Collider[] colliders =
             GetComponentsInChildren<Collider>(true);
 
@@ -388,14 +379,10 @@ public class MonsterBehaviour : MonoBehaviour
     // PATROL SYSTEM
     // ------------------------------------
 
-
     void Patrol()
     {
         if (patrolPoints == null ||
             patrolPoints.Length == 0)
-            return;
-
-        if (!agent.isOnNavMesh)
             return;
 
         agent.speed = patrolSpeed;
@@ -403,20 +390,30 @@ public class MonsterBehaviour : MonoBehaviour
         if (agent.pathPending)
             return;
 
-        // Check whether the monster has reached
-        // its current patrol destination.
         if (!agent.hasPath ||
             agent.remainingDistance <=
             agent.stoppingDistance + 0.2f)
         {
             waitTimer += Time.deltaTime;
 
-            // Wait at the patrol point.
             if (waitTimer >= patrolWaitTime)
             {
                 waitTimer = 0f;
 
-                // Move to the next patrol point.
+                // Reached the final patrol point.
+                bool finishedPatrol =
+                    currentPatrolPoint ==
+                    patrolPoints.Length - 1;
+
+                // Only switch decks when a
+                // patrol route has finished.
+                if (finishedPatrol &&
+                    IsDeckChangePending())
+                {
+                    ChangeDeckAfterPatrol();
+                    return;
+                }
+
                 currentPatrolPoint =
                     (currentPatrolPoint + 1) %
                     patrolPoints.Length;
@@ -430,7 +427,6 @@ public class MonsterBehaviour : MonoBehaviour
         }
     }
 
-
     void GoToCurrentPatrolPoint()
     {
         if (!agent.isOnNavMesh)
@@ -440,7 +436,6 @@ public class MonsterBehaviour : MonoBehaviour
             patrolPoints.Length == 0)
             return;
 
-        // Skip empty patrol points.
         for (int count = 0;
              count < patrolPoints.Length;
              count++)
@@ -466,8 +461,9 @@ public class MonsterBehaviour : MonoBehaviour
         }
 
         Debug.LogWarning(
-            "All patrol points are empty for " +
-            thisDeck, this
+            "All patrol points are empty on " +
+            thisDeck,
+            this
         );
     }
 
@@ -501,7 +497,6 @@ public class MonsterBehaviour : MonoBehaviour
         currentState = MonsterState.Search;
 
         searchTimer = 0f;
-
         searchingLastKnownPosition = true;
 
         agent.ResetPath();
@@ -521,15 +516,9 @@ public class MonsterBehaviour : MonoBehaviour
 
         searchTimer += Time.deltaTime;
 
-        // Stop searching after the timer ends.
         if (searchTimer >= searchDuration)
         {
-            currentState = MonsterState.Patrol;
-
-            waitTimer = 0f;
-
-            GoToCurrentPatrolPoint();
-
+            FinishSearching();
             return;
         }
 
@@ -539,18 +528,15 @@ public class MonsterBehaviour : MonoBehaviour
         if (agent.pathPending)
             return;
 
-        // Search around the player's
-        // last known location.
+        // Investigate the player's last
+        // known location first.
         if (!agent.hasPath ||
             agent.remainingDistance <=
             agent.stoppingDistance + 0.3f ||
             agent.pathStatus ==
             NavMeshPathStatus.PathInvalid)
         {
-            if (searchingLastKnownPosition)
-            {
-                searchingLastKnownPosition = false;
-            }
+            searchingLastKnownPosition = false;
 
             Vector3 randomOffset =
                 Random.insideUnitSphere *
@@ -574,6 +560,75 @@ public class MonsterBehaviour : MonoBehaviour
     }
 
     // ------------------------------------
+    // SEARCH DECISION
+    // ------------------------------------
+
+    void FinishSearching()
+    {
+        // If the timer requested a deck
+        // change during the chase, choose
+        // whether to leave or keep patrolling.
+        if (IsDeckChangePending())
+        {
+            float randomDecision =
+                Random.value;
+
+            if (randomDecision <
+                leaveDeckAfterSearchChance)
+            {
+                Debug.Log(
+                    "Monster finished searching " +
+                    "and decided to change decks."
+                );
+
+                ChangeDeckAfterPatrol();
+                return;
+            }
+        }
+
+        // Otherwise return to the patrol route.
+        currentState = MonsterState.Patrol;
+        waitTimer = 0f;
+
+        Debug.Log(
+            "Monster finished searching " +
+            "and returned to patrol."
+        );
+
+        GoToCurrentPatrolPoint();
+    }
+
+    // ------------------------------------
+    // DECK CHANGE DECISION
+    // ------------------------------------
+
+    bool IsDeckChangePending()
+    {
+        if (DeckStatusManager.Instance == null)
+            return false;
+
+        return DeckStatusManager.Instance
+            .IsDeckChangePending();
+    }
+
+    void ChangeDeckAfterPatrol()
+    {
+        if (DeckStatusManager.Instance == null)
+            return;
+
+        if (!IsDeckChangePending())
+            return;
+
+        // The manager changes deck assignment.
+        DeckStatusManager.Instance
+            .CompleteDeckChange();
+
+        // Hide the monster if its assignment
+        // changed to the other deck.
+        SyncWithDeckManager();
+    }
+
+    // ------------------------------------
     // VISION SYSTEM
     // ------------------------------------
 
@@ -584,16 +639,12 @@ public class MonsterBehaviour : MonoBehaviour
         if (player == null)
             return;
 
-    // -----------------------------------
-    // HIDING SPOT DETECTION
-    // -----------------------------------
-
+        // Respect the hiding spot system.
         if (HidingSpotBehaviour.IsPlayerHidden(player))
         {
-            if(!HidingSpotBehaviour
+            if (!HidingSpotBehaviour
                 .CanMonsterSeePlayer(player))
             {
-                canSeePlayer = false;
                 return;
             }
         }
@@ -650,7 +701,7 @@ public class MonsterBehaviour : MonoBehaviour
     }
 
     // ------------------------------------
-    // GIZMOS
+    // VISION GIZMOS
     // ------------------------------------
 
     void OnDrawGizmosSelected()
@@ -698,5 +749,18 @@ public class MonsterBehaviour : MonoBehaviour
             eyePosition,
             transform.forward * sightDistance
         );
+    }
+
+    // ------------------------------------
+    // CLEANUP
+    // ------------------------------------
+
+    void OnDestroy()
+    {
+        if (DeckStatusManager.Instance != null)
+        {
+            DeckStatusManager.Instance
+                .UnregisterMonster(thisDeck, this);
+        }
     }
 }

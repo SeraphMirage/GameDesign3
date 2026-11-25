@@ -1,11 +1,18 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MapEntryTrigger : MonoBehaviour
 {
+    [Header("Map Settings")]
     public string mapSceneName = "Ship UI";
-    public string returnSceneName = "Top Deck";
+
+    [Header("Interaction")]
     public float interactionDistance = 3f;
+
+    // ------------------------------------
+    // UPDATE
+    // ------------------------------------
 
     void Update()
     {
@@ -29,14 +36,37 @@ public class MapEntryTrigger : MonoBehaviour
             {
                 if (hit.transform == transform)
                 {
-                    PlayerPrefs.SetString(
-                        "MapReturnScene",
-                        returnSceneName
-                    );
-
-                    SceneManager.LoadScene(mapSceneName);
+                    OpenShipMap();
                 }
             }
         }
+    }
+
+    // ------------------------------------
+    // OPEN SHIP MAP
+    // ------------------------------------
+
+    void OpenShipMap()
+    {
+        // Automatically detect which deck
+        // the player is currently exploring.
+        string currentScene =
+            SceneManager.GetActiveScene().name;
+
+        // Save the player's current deck.
+        PlayerPrefs.SetString(
+            "MapReturnScene",
+            currentScene
+        );
+
+        PlayerPrefs.Save();
+
+        Debug.Log(
+            "Opening Ship Map from: " +
+            currentScene
+        );
+
+        // Open the Ship Map scene.
+        SceneManager.LoadScene(mapSceneName);
     }
 }
