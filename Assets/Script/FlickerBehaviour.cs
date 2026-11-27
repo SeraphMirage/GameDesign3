@@ -9,6 +9,11 @@ public class FlickerBehaviour : MonoBehaviour
     public float maxIntensity = 2f;
     public float flickerSpeed = 0.1f;
 
+    [Header("Audio")]
+    public AudioSource electricalBuzz;
+    public AudioSource flickerSound;
+    public AudioSource engine;
+
     private Coroutine flickerRoutine;
     private bool hasTriggered = false;
     private bool powerRestored = false;
@@ -16,7 +21,7 @@ public class FlickerBehaviour : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-        if (hasTriggered) return;
+        if (hasTriggered || powerRestored) return;
 
         hasTriggered = true;
 
@@ -26,6 +31,21 @@ public class FlickerBehaviour : MonoBehaviour
             {
                 if (light != null)
                     light.enabled = true;
+            }
+
+            if (engine != null)
+            {
+                engine.Stop();
+            }
+
+            if (electricalBuzz != null)
+            {
+                electricalBuzz.Stop();
+            }
+
+            if (flickerSound != null)
+            {
+                flickerSound.Play();
             }
 
             flickerRoutine = StartCoroutine(FlickerLight());
@@ -50,7 +70,7 @@ public class FlickerBehaviour : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-        if (powerRestored) return;
+        if (!hasTriggered || powerRestored) return;
 
         if (flickerRoutine != null)
         {
@@ -62,6 +82,11 @@ public class FlickerBehaviour : MonoBehaviour
         {
             if (light != null)
                 light.enabled = false;
+        }
+
+        if (flickerSound != null)
+        {
+            flickerSound.Stop();
         }
     }
 
@@ -79,6 +104,21 @@ public class FlickerBehaviour : MonoBehaviour
         {
             if (light != null)
                 light.enabled = true;
+        }
+
+        if (flickerSound != null)
+        {
+            flickerSound.Stop();
+        }
+
+        if (electricalBuzz != null && !electricalBuzz.isPlaying)
+        {
+            electricalBuzz.Play();
+        }
+
+        if (engine != null && !engine.isPlaying)
+        {
+            engine.Play();
         }
     }
 }
