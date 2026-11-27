@@ -13,10 +13,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
     private Rigidbody rb;
     private Vector3 moveInput;
 
-    // ------------------------------------
-    // START
-    // ------------------------------------
-
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -27,10 +23,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
             cameraTransform = Camera.main.transform;
         }
     }
-
-    // ------------------------------------
-    // UPDATE
-    // ------------------------------------
 
     void Update()
     {
@@ -46,10 +38,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
             moveZ
         ).normalized;
     }
-
-    // ------------------------------------
-    // FIXED UPDATE
-    // ------------------------------------
 
     void FixedUpdate()
     {
@@ -112,10 +100,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
             rb.linearVelocity = velocity;
         }
     }
-
-    // ------------------------------------
-    // STOP MOVEMENT FOR HIDING
-    // ------------------------------------
 
     public void StopMovement()
     {
