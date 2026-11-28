@@ -1,59 +1,83 @@
+
 using UnityEngine;
-using UnityEngine.Events;
 
 public class ButtonBehaviour : MonoBehaviour
 {
+    [Header("Repair ID")]
+    public string repairId;
+
+    [Header("Materials")]
     public Material redMaterial;
     public Material greenMaterial;
 
+    [Header("Systems")]
     public FlickerBehaviour[] powerZones;
     public ScreedOffBehaviour[] screenZones;
     public GameObject[] objectsToActivate;
 
     private Renderer objectRenderer;
+    private bool isFixed;
 
-    private void Start()
+    void Start()
     {
         objectRenderer = GetComponent<Renderer>();
 
-        if (objectRenderer != null && redMaterial != null)
+        isFixed = ShipRepairState.IsFixed(repairId);
+
+        UpdateAppearance();
+
+        if (isFixed)
         {
-            objectRenderer.material = redMaterial;
+            RestoreSystems();
         }
     }
 
     public void PressButton()
     {
-        if (objectRenderer == null ||
-            redMaterial == null ||
-            greenMaterial == null)
+        if (isFixed)
             return;
 
-        if (objectRenderer.sharedMaterial == greenMaterial)
+        isFixed = true;
+
+        UpdateAppearance();
+        RestoreSystems();
+
+        ShipRepairState.SetFixed(repairId, true);
+    }
+
+    void UpdateAppearance()
+    {
+        if (objectRenderer == null)
+            return;
+
+        if (isFixed && greenMaterial != null)
+        {
+            objectRenderer.material = greenMaterial;
+        }
+        else if (!isFixed && redMaterial != null)
         {
             objectRenderer.material = redMaterial;
         }
-        else
+    }
+
+    void RestoreSystems()
+    {
+        foreach (FlickerBehaviour zone in powerZones)
         {
-            objectRenderer.material = greenMaterial;
+            if (zone != null)
+                zone.RestorePower();
+        }
 
-            foreach (FlickerBehaviour zone in powerZones)
-            {
-                if (zone != null)
-                    zone.RestorePower();
-            }
+        foreach (ScreedOffBehaviour zone in screenZones)
+        {
+            if (zone != null)
+                zone.TurnScreensOn();
+        }
 
-            foreach (ScreedOffBehaviour zone in screenZones)
-            {
-                if (zone != null)
-                    zone.TurnScreensOn();
-            }
-
-            foreach (GameObject obj in objectsToActivate)
-            {
-                if (obj != null)
-                    obj.SetActive(true);
-            }
+        foreach (GameObject obj in objectsToActivate)
+        {
+            if (obj != null)
+                obj.SetActive(true);
         }
     }
 }

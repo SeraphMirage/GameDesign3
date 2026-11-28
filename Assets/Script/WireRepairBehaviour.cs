@@ -1,17 +1,38 @@
+
 using UnityEngine;
 using System.Collections;
 
 public class WireRepairBehaviour : MonoBehaviour
 {
+    [Header("Repair ID")]
+    public string repairId;
+
+    [Header("Repair Settings")]
     public Transform repairedPosition;
     public float repairSpeed = 3f;
 
     private bool isRepaired = false;
     private bool isRepairing = false;
 
+    void Start()
+    {
+        // Check previous repair state.
+        isRepaired = ShipRepairState.IsFixed(repairId);
+
+        // Restore the repaired position.
+        if (isRepaired && repairedPosition != null)
+        {
+            transform.SetPositionAndRotation(
+                repairedPosition.position,
+                repairedPosition.rotation
+            );
+        }
+    }
+
     public void RepairWire()
     {
-        if (isRepaired || isRepairing ||
+        if (isRepaired ||
+            isRepairing ||
             repairedPosition == null)
             return;
 
@@ -22,11 +43,17 @@ public class WireRepairBehaviour : MonoBehaviour
     {
         isRepairing = true;
 
-        Vector3 startPosition = transform.position;
-        Quaternion startRotation = transform.rotation;
+        Vector3 startPosition =
+            transform.position;
 
-        Vector3 targetPosition = repairedPosition.position;
-        Quaternion targetRotation = repairedPosition.rotation;
+        Quaternion startRotation =
+            transform.rotation;
+
+        Vector3 targetPosition =
+            repairedPosition.position;
+
+        Quaternion targetRotation =
+            repairedPosition.rotation;
 
         float progress = 0f;
 
@@ -51,10 +78,15 @@ public class WireRepairBehaviour : MonoBehaviour
             yield return null;
         }
 
-        transform.position = targetPosition;
-        transform.rotation = targetRotation;
+        transform.SetPositionAndRotation(
+            targetPosition,
+            targetRotation
+        );
 
         isRepaired = true;
         isRepairing = false;
+
+        // Remember this wire was repaired.
+        ShipRepairState.SetFixed(repairId, true);
     }
 }

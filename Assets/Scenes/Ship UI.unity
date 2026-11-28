@@ -386,8 +386,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 146.49995, y: -97.8}
-  m_SizeDelta: {x: 367.1689, y: 95.9173}
+  m_AnchoredPosition: {x: 156.89668, y: -89.045425}
+  m_SizeDelta: {x: 346.3755, y: 88.6783}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &796543626
 MonoBehaviour:
@@ -550,8 +550,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 146.49998, y: 81.8}
-  m_SizeDelta: {x: 367.1689, y: 95.9173}
+  m_AnchoredPosition: {x: 156.89671, y: 77}
+  m_SizeDelta: {x: 346.3755, y: 88.6783}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &995129797
 MonoBehaviour:
@@ -969,8 +969,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -200.20001, y: -3.7000122}
-  m_SizeDelta: {x: 230, y: 330}
+  m_AnchoredPosition: {x: -201.61731, y: -5.9035}
+  m_SizeDelta: {x: 296.4954, y: 297.37}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1404538539
 MonoBehaviour:
@@ -1021,8 +1021,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1060,7 +1060,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0.000061035156, w: -0.000061035156}
+  m_margin: {x: 9.549904, y: 9.549957, z: 0.000061035156, w: 8.488831}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1166,6 +1166,7 @@ GameObject:
   - component: {fileID: 2029522233}
   - component: {fileID: 2029522232}
   - component: {fileID: 2029522236}
+  - component: {fileID: 2029522237}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1278,6 +1279,31 @@ MonoBehaviour:
   hoverColor: {r: 0, g: 0, b: 1, a: 1}
   otherDeckColor: {r: 1, g: 1, b: 1, a: 1}
   currentPlayerDeck: 
+--- !u!114 &2029522237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029522231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d62d108f00f313d4b8db4044907970de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShipRepairUIBehaviour
+  deckStatusText: {fileID: 1404538539}
+  topDeckButton: {fileID: 0}
+  bottomDeckButton: {fileID: 0}
+  topDeckRepairIds:
+  - Red Wire
+  - Black Wire
+  - Green Wire
+  topDeckRepairNames: []
+  bottomDeckRepairIds:
+  - Bottom Temperture
+  - Valve
+  - Computer
+  bottomDeckRepairNames: []
 --- !u!1 &2060322539
 GameObject:
   m_ObjectHideFlags: 0

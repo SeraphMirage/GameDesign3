@@ -4101,6 +4101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonPushBehaviour
   temperatureSystem: {fileID: 0}
+  repairId: Bottom_Temperature_01
 --- !u!4 &317338076 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9057012490855738179, guid: 42bf746a7a5cdf544a566042ff7108cc, type: 3}
@@ -8697,6 +8698,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TempRepairBehaviour
   temperatureSystem: {fileID: 2010960433}
+  repairId: Bottom_Temperature_01
 --- !u!1 &631178646
 GameObject:
   m_ObjectHideFlags: 0
@@ -25147,6 +25149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2da36d086a0f2fe47ba8164b1cbf9408, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonBehaviour
+  repairId: Power
   redMaterial: {fileID: 2100000, guid: 5b65cb28e18b92a48b4c1acf4ed88c3a, type: 2}
   greenMaterial: {fileID: 2100000, guid: 4aeb3fc8994f9f34c96bc42beb635ab8, type: 2}
   powerZones:
@@ -26440,6 +26443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a315c59cbefff54d8c468b5bd16caac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CWRotationBevahiour
+  repairId: Valve
   rotationAngle: 90
   duration: 0.5
   rotationAxis: {x: 0, y: 1, z: 0}
